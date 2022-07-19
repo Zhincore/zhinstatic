@@ -21,8 +21,10 @@ specifiers:
   prettier-plugin-tailwindcss: ^0.1.12
   prisma: ^4.0.0
   svelte: ^3.49.0
+  svelte-awesome: ^3.0.0
   svelte-check: ^2.8.0
   svelte-preprocess: ^4.10.7
+  svelte-window: ^1.2.3
   tailwindcss: ^3.1.6
   toml: ^3.0.0
   tslib: ^2.4.0
@@ -52,8 +54,10 @@ devDependencies:
   prettier-plugin-tailwindcss: 0.1.12_prettier@2.7.1
   prisma: 4.0.0
   svelte: 3.49.0
+  svelte-awesome: 3.0.0_svelte@3.49.0
   svelte-check: 2.8.0_nxvsp6sjiltnatqa6jdm4mr6zu
   svelte-preprocess: 4.10.7_bgntxiihuqhg5mwaa7nczjwpga
+  svelte-window: 1.2.3
   tailwindcss: 3.1.6
   toml: 3.0.0
   tslib: 2.4.0
@@ -2171,6 +2175,14 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
+  /svelte-awesome/3.0.0_svelte@3.49.0:
+    resolution: {integrity: sha512-jfK+vc7f2kTFbBCk3dR1C3JA72cugh5bZHILc0gHbaSC3f1PkwPpA4OwpCRCT1Zf0hv6oaSZKxR8V2m1SKHj3Q==}
+    peerDependencies:
+      svelte: ^3.43.1
+    dependencies:
+      svelte: 3.49.0
+    dev: true
+
   /svelte-check/2.8.0_nxvsp6sjiltnatqa6jdm4mr6zu:
     resolution: {integrity: sha512-HRL66BxffMAZusqe5I5k26mRWQ+BobGd9Rxm3onh7ZVu0nTk8YTKJ9vu3LVPjUGLU9IX7zS+jmwPVhJYdXJ8vg==}
     hasBin: true
@@ -2258,6 +2270,10 @@ packages:
       strip-indent: 3.0.0
       svelte: 3.49.0
       typescript: 4.7.4
+    dev: true
+
+  /svelte-window/1.2.3:
+    resolution: {integrity: sha512-hG05EPjHGp6UyndJY1m+2V14nz40yp/CVWY3sFkTVjsR5CEjfZEhcesSx4mE6GmdXtP63khHDLX7nBGgPk0VDg==}
     dev: true
 
   /svelte/3.49.0:

@@ -1,4 +1,5 @@
-import fs from "fs";
+import fs from "node:fs";
+import { Readable } from "node:stream";
 import type { Handle } from "@sveltejs/kit";
 import { getPath, getFile } from "$lib/files";
 import { probeFile } from "$lib/filesSubprocess";
@@ -15,23 +16,15 @@ export const handle: Handle = async ({ event, resolve }) => {
     const file = await getFile(path);
     if (file.stat.isFile()) {
       const stream = fs.createReadStream(path);
-      return new Response(
-        new ReadableStream({
-          start(controller) {
-            stream.on("data", (d) => controller.enqueue(d));
-            stream.on("close", () => controller.close());
-          },
-          cancel() {
-            stream.close();
-          },
-        }),
-        {
-          headers: {
-            "Content-Type": await probeFile(path),
-            "Content-Length": file.stat.size + "",
-          },
+      stream.on("error", (error) => {
+        if (!["EPIPE", "AbortError"].includes(error.name)) throw error;
+      });
+      return new Response(Readable.toWeb(stream), {
+        headers: {
+          "Content-Type": await probeFile(path),
+          "Content-Length": file.stat.size + "",
         },
-      );
+      });
     }
   }
 

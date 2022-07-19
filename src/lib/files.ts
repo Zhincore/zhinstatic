@@ -1,6 +1,6 @@
-import fs from "fs";
-import Path from "path";
-import { cpus } from "os";
+import fs from "node:fs";
+import Path from "node:path";
+import { cpus } from "node:os";
 import Limiter from "p-limit";
 import { ErrorResponse } from "$lib/ErrorResponse";
 

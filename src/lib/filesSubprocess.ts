@@ -1,5 +1,5 @@
-import { cpus } from "os";
-import { spawn } from "child_process";
+import { cpus } from "node:os";
+import { spawn } from "node:child_process";
 import Limiter from "p-limit";
 
 const limit = Limiter(cpus().length);
