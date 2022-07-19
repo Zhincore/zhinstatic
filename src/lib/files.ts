@@ -1,105 +1,62 @@
 import fs from "fs";
 import Path from "path";
-import { prisma } from "$lib/prisma";
-import type { FileInfo as PrismaFileInfo } from "@prisma/client";
-import { probeFile } from "./filesSubprocess";
-import { ResourceLock } from "./ResourceLock";
+import { cpus } from "os";
+import Limiter from "p-limit";
+import { ErrorResponse } from "$lib/ErrorResponse";
 
-const fileinfoLock = new ResourceLock<PrismaFileInfo>();
+const ROOT_PATH = Path.resolve(process.env.ZSTATIC_PATH || import.meta.env.ZSTATIC_PATH);
 
-export type FileInfo = Omit<PrismaFileInfo, "size" | "atime" | "ctime" | "mtime"> & {
+const limit = Limiter(cpus().length);
+
+type BaseNodeInfo = { name: string };
+export type FileInfo = BaseNodeInfo & {
   size: number;
-  atime: number;
-  ctime: number;
   mtime: number;
 };
-export type FolderInfo = {
+export type FolderInfo = BaseNodeInfo & {
   files: NodeInfo[];
 };
 export type NodeInfo = FileInfo | FolderInfo;
 
+export function getPath(paramPath: string) {
+  const path = Path.join(ROOT_PATH, paramPath);
+  if (!path.startsWith(ROOT_PATH)) throw new ErrorResponse(400, "Invalid path");
+  if (!fs.existsSync(path)) throw new ErrorResponse(404, "File not found");
+  return path;
+}
+
 export async function getNodeInfo(path: string): Promise<NodeInfo | undefined> {
   if (!fs.existsSync(path)) return;
 
-  const stat = await fs.promises.stat(path);
-  if (stat.isDirectory()) {
+  const file = await getFile(path);
+  if (file.stat.isDirectory()) {
     const files: Promise<NodeInfo>[] = [];
 
     const dir = await fs.promises.opendir(path);
     for await (const dirent of dir) {
       const _path = Path.join(path, dirent.name);
       if (dirent.isDirectory()) {
-        files.push(Promise.resolve({ path: Path.basename(_path), files: [] }));
+        files.push(Promise.resolve({ name: Path.basename(_path), files: [] }));
       } else {
-        files.push(getFileInfo(_path));
+        files.push(limit(() => getFile(_path)).then((d) => d.info));
       }
     }
 
-    return { files: await Promise.all(files) };
+    return { name: Path.basename(path), files: await Promise.all(files) };
   }
 
-  return await getFileInfo(path);
+  return file.info;
 }
 
-async function getFileInfo(path: string): Promise<FileInfo> {
-  let info = await prisma.fileInfo.findUnique({ where: { path } });
-  const stat = await fs.promises.stat(path, { bigint: true });
-
-  if (!info || hasFileChanged(info, stat)) {
-    if (fileinfoLock.isLocked(path)) info = await fileinfoLock.await(path);
-    else {
-      const releaseLock = await fileinfoLock.acquire(path);
-
-      // Create and cache info about the file
-      const probeData = await probeFile(path);
-      const data = {
-        path,
-        size: stat.size,
-        atime: stat.atimeMs,
-        ctime: stat.ctimeMs,
-        mtime: stat.mtimeMs,
-        ...probeData,
-      };
-
-      info = await prisma.fileInfo.upsert({
-        where: { path },
-        create: data,
-        update: data,
-      });
-
-      releaseLock(info);
-    }
-  }
+export async function getFile(path: string) {
+  const stat = await fs.promises.stat(path);
 
   return {
-    ...info,
-    path: Path.basename(info.path),
-    size: Number(info.size),
-    atime: Number(info.atime),
-    ctime: Number(info.ctime),
-    mtime: Number(info.mtime),
+    stat,
+    info: {
+      name: Path.basename(path),
+      size: stat.size,
+      mtime: stat.mtimeMs,
+    },
   };
-}
-
-function hasFileChanged(dbInfo: PrismaFileInfo, stat: fs.BigIntStats) {
-  // console.log(
-  //   stat.atimeMs,
-  //   dbInfo.atime,
-  //   "|",
-  //   stat.mtimeMs,
-  //   dbInfo.mtime,
-  //   "|",
-  //   stat.ctimeMs,
-  //   dbInfo.ctime,
-  //   "|",
-  //   stat.size,
-  //   dbInfo.size,
-  //   "|",
-  // );
-  return (
-    stat.atimeMs !== dbInfo.atime ||
-    stat.mtimeMs !== dbInfo.mtime ||
-    stat.ctimeMs !== dbInfo.ctime ||
-    stat.size !== dbInfo.size
-  );
 }
