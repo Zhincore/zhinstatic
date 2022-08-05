@@ -5,12 +5,19 @@
   import "../app.css";
 </script>
 
-<div>
-  <a href="." class="link inline-block p-3 transition" class:opacity-0={!$page.params.path}>
-    <Icon data={faArrowUp} scale={1.5} />
-  </a>
+<div class="flex flex-col h-screen">
+  <div class="sticky top-0 bg-zinc-900">
+    <a
+      href="."
+      class="link inline-block p-3 transition"
+      class:opacity-0={!$page.params.path}
+      class:pointer-events-none={!$page.params.path}
+    >
+      <Icon data={faArrowUp} scale={1.5} />
+    </a>
 
-  {"/" + $page.params.path}
+    {"/" + $page.params.path}
+  </div>
+
+  <slot />
 </div>
-
-<slot />

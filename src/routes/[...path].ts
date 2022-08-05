@@ -1,9 +1,8 @@
 import { ErrorResponse } from "$lib/ErrorResponse";
 import { getPath, getNodeInfo } from "$lib/files";
-import { probeFile } from "$lib/filesSubprocess";
 import type { RequestHandler } from "./__types/[...path]";
 
-export const get: RequestHandler = async ({ params }) => {
+export const get: RequestHandler<unknown> = async ({ params }) => {
   const path = getPath(params.path);
 
   const nodeInfo = await getNodeInfo(path);
@@ -14,7 +13,7 @@ export const get: RequestHandler = async ({ params }) => {
     body: {
       nodeInfo,
       path: "/" + params.path,
-      mime: "size" in nodeInfo ? await probeFile(path) : null,
+      mime: "mime" in nodeInfo ? nodeInfo.mime : null,
     },
   };
 };

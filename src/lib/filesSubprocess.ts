@@ -1,31 +1,4 @@
-import { cpus } from "node:os";
 import { spawn } from "node:child_process";
-import Limiter from "p-limit";
-
-const limit = Limiter(cpus().length);
-
-export async function probeFile(path: string) {
-  return limit(() => probeMime(path));
-}
-
-/**
- * probeMime
- */
-export function probeMime(path: string): Promise<string> {
-  let output = "";
-  const file = spawn("file", ["-biLnNp", path]);
-
-  file.stderr.on("data", (d) => console.log(d.toString()));
-  file.stdout.on("data", (data) => (output += data.toString("utf-8")));
-  return new Promise((resolve, reject) =>
-    file.on("close", (code) => {
-      output = output.split(";")[0].trim();
-      if (code !== 0 || !output) return reject("Mime probing failed");
-
-      resolve(output);
-    }),
-  );
-}
 
 /**
  * generatePoster

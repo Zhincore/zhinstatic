@@ -1,22 +1,27 @@
 import fs from "node:fs";
+import type { Stats } from "node:fs";
 import Path from "node:path";
-import { cpus } from "node:os";
-import Limiter from "p-limit";
+import { fileTypeFromFile } from "file-type";
+import type { File as FileRecord, PrismaPromise } from "@prisma/client";
 import { ErrorResponse } from "$lib/ErrorResponse";
+import { prisma } from "$lib/prisma";
 
 const ROOT_PATH = Path.resolve(process.env.ZSTATIC_PATH || import.meta.env.ZSTATIC_PATH);
-
-const limit = Limiter(cpus().length);
 
 type BaseNodeInfo = { name: string };
 export type FileInfo = BaseNodeInfo & {
   size: number;
   mtime: number;
+  mime: string | undefined;
+  ext: string | undefined;
 };
 export type FolderInfo = BaseNodeInfo & {
   files: NodeInfo[];
 };
 export type NodeInfo = FileInfo | FolderInfo;
+
+const cacheLock = new Set<string>();
+const deferedCache: FileRecord[] = [];
 
 export function getPath(paramPath: string) {
   const path = Path.join(ROOT_PATH, paramPath);
@@ -28,8 +33,8 @@ export function getPath(paramPath: string) {
 export async function getNodeInfo(path: string): Promise<NodeInfo | undefined> {
   if (!fs.existsSync(path)) return;
 
-  const file = await getFile(path);
-  if (file.stat.isDirectory()) {
+  const stat = await fs.promises.stat(path);
+  if (stat.isDirectory()) {
     const files: Promise<NodeInfo>[] = [];
 
     const dir = await fs.promises.opendir(path);
@@ -38,25 +43,51 @@ export async function getNodeInfo(path: string): Promise<NodeInfo | undefined> {
       if (dirent.isDirectory()) {
         files.push(Promise.resolve({ name: Path.basename(_path), files: [] }));
       } else {
-        files.push(limit(() => getFile(_path)).then((d) => d.info));
+        files.push(getFile(_path));
       }
     }
 
+    await saveDeferedCache();
     return { name: Path.basename(path), files: await Promise.all(files) };
   }
 
-  return file.info;
+  await saveDeferedCache();
+  return await getFile(path);
 }
 
-export async function getFile(path: string) {
-  const stat = await fs.promises.stat(path);
+export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
+  const [stat, db] = await Promise.all([
+    aStat ?? (await fs.promises.stat(path)),
+    prisma.file.findUnique({ where: { path } }),
+  ]);
+  let _db = db ?? undefined;
+
+  if (!db) {
+    const type = await fileTypeFromFile(path);
+    if (type) {
+      _db = { path, ...type };
+      deferedCache.push(_db);
+    }
+  }
 
   return {
-    stat,
-    info: {
-      name: Path.basename(path),
-      size: stat.size,
-      mtime: stat.mtimeMs,
-    },
+    name: Path.basename(path),
+    size: stat.size,
+    mtime: stat.mtimeMs,
+    mime: _db?.mime ?? undefined,
+    ext: _db?.ext ?? undefined,
   };
+}
+
+async function saveDeferedCache() {
+  if (!deferedCache.length) return;
+
+  const transaction: PrismaPromise<unknown>[] = [];
+  for (const data of deferedCache) {
+    if (cacheLock.has(data.path)) continue;
+    cacheLock.add(data.path);
+    transaction.push(prisma.file.create({ data }));
+  }
+  deferedCache.length = 0;
+  await prisma.$transaction(transaction);
 }
