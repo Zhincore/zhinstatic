@@ -1,24 +1,24 @@
 <script lang="ts">
+  import { fade } from "svelte/transition";
+  import { page } from "$app/stores";
   import type { NodeInfo } from "$lib/files";
-  import type { SvelteComponentConstructor } from "$lib/utils";
+  import FileViewer from "./_file.svelte";
+  import FolderViewer from "./_folder.svelte";
 
   export let nodeInfo: NodeInfo;
-
-  let FolderViewer: SvelteComponentConstructor;
-  let FileViewer: SvelteComponentConstructor;
-
-  function loadComponent(folder: boolean) {
-    if (folder && FolderViewer) return;
-    if (!folder && FileViewer) return;
-    const comp = folder ? import("./_folder.svelte") : import("./_file.svelte");
-    comp.then((m) => {
-      if (folder) FolderViewer = m.default;
-      else FileViewer = m.default;
-    });
-  }
-
-  $: isFolder = "files" in nodeInfo;
-  $: loadComponent(isFolder);
+  export let path: string;
 </script>
 
-<svelte:component this={isFolder ? FolderViewer : FileViewer} node={nodeInfo} />
+<svelte:head>
+  <title>{"/" + path}</title>
+</svelte:head>
+
+{#key path}
+  <div class="absolute inset-0" transition:fade={{ duration: 200 }}>
+    {#if "files" in nodeInfo}
+      <FolderViewer node={nodeInfo} />
+    {:else}
+      <FileViewer node={nodeInfo} />
+    {/if}
+  </div>
+{/key}

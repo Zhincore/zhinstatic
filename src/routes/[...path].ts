@@ -10,10 +10,6 @@ export const get: RequestHandler<unknown> = async ({ params }) => {
   if (!nodeInfo) return new ErrorResponse(404, "File ceased to exist while processing?");
 
   return {
-    body: {
-      nodeInfo,
-      path: "/" + params.path,
-      mime: "mime" in nodeInfo ? nodeInfo.mime : null,
-    },
+    body: { nodeInfo, path },
   };
 };

@@ -8,7 +8,7 @@
   $: sorted = [...node.files].sort((a, b) => a.name.localeCompare(b.name));
 </script>
 
-<ul>
+<ul class="h-full overflow-auto">
   {#each sorted as file, i}
     <li>
       <a href={normalizePath($page.params.path, file.name)} class="link inline-block px-4 py-1 break-all">
