@@ -17,7 +17,7 @@
       <Icon data={faArrowUp} scale={2} />
     </a>
 
-    {"/" + $page.params.path}
+    <span class="break-words">{"/" + $page.params.path}</span>
   </div>
 
   <div class="relative flex-1 overflow-hidden">

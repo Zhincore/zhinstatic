@@ -1,38 +1,49 @@
-# create-svelte
+# Zhinstatic
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+My Svelte learning project that serves static files.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- Provides responsive web file browser.
+- Sends the web UI or the file depending on the `Accept` header.
+  - This means that in the browser you'll have UI but if you send the same link to Discord or `wget` you'll get the file itself.
+- _TODO:_ Automatically prunes its cache at given time.
+- _TODO:_ Generates thumbnails for images and videos.
 
-```bash
-# create a new project in the current directory
-npm init svelte
+## Usage
 
-# create a new project in my-app
-npm init svelte my-app
-```
+### Requirements
 
-## Developing
+- PNPM (optimally)
+- Node v16 to v18
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### Building
 
-```bash
-npm run dev
+1. `pnpm install`
+2. `pnpm build`
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+### Running
 
-## Building
+1. Configure `.env`, use `.env.example` as a template
+2. `pnpm start` or `node .`
 
-To create a production version of your app:
+## Disclaimer
 
-```bash
-npm run build
-```
+I made this project for myself and to learn Svelte. You probably shouldn't use it in production or elsewhere, but you can learn from it and use its parts in accordance to the license.
 
-You can preview the production build with `npm run preview`.
+## License
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+Copyright (C) 2022 Zhincore
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
