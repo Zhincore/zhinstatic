@@ -1,12 +1,12 @@
 <script lang="ts">
   import { Icon } from "svelte-awesome";
-  import { faArrowUp } from "@fortawesome/free-solid-svg-icons";
-  import { page } from "$app/stores";
+  import { faArrowUp } from "@fortawesome/free-solid-svg-icons/faArrowUp";
   import { darkmode } from "$lib/darkmode";
+  import { page } from "$app/stores";
   import "../app.css";
 </script>
 
-<div class="flex flex-col h-screen dark:bg-zinc-900 dark:text-zinc-200">
+<div class="flex h-screen flex-col dark:bg-zinc-900 dark:text-zinc-200">
   <div>
     <a
       href="."
@@ -20,7 +20,7 @@
     {"/" + $page.params.path}
   </div>
 
-  <div class="flex-1 overflow-hidden relative">
+  <div class="relative flex-1 overflow-hidden">
     <slot />
   </div>
 </div>

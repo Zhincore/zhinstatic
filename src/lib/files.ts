@@ -1,10 +1,10 @@
-import fs from "node:fs";
+import fs from "fs";
 import type { Stats } from "node:fs";
 import Path from "node:path";
 import { fileTypeFromFile } from "file-type";
 import type { File as FileRecord, PrismaPromise } from "@prisma/client";
-import { ErrorResponse } from "$lib/ErrorResponse";
 import { prisma } from "$lib/prisma";
+import { ErrorResponse } from "$lib/ErrorResponse";
 
 const ROOT_PATH = Path.resolve(process.env.ZSTATIC_PATH || import.meta.env.ZSTATIC_PATH);
 

@@ -1,5 +1,3 @@
-import type { SvelteComponentTyped } from "svelte";
-
 const NORMALIZE_PATH_RE = /\/+/g;
 
 export function normalizePath(...pathComps: string[]) {
@@ -13,5 +11,3 @@ export function normalizePath(...pathComps: string[]) {
       .join("/")
   );
 }
-
-export type SvelteComponentConstructor<T = Record<string, any>> = new (...args: any) => SvelteComponentTyped<T>;
