@@ -3,7 +3,35 @@
 @tailwind utilities;
 
 @layer components {
-  a.link {
-    @apply transition hover:text-accent;
+  .link {
+    @apply transition hover:text-accent-500 dark:hover:text-accent-200;
+
+    &:not(.svg) {
+      text-shadow: 0 0 0 transparent;
+      &:hover {
+        text-shadow: 0 0 0.2em theme("colors.accent.800" / 50%);
+      }
+      html.dark &:hover {
+        filter: drop-shadow(0 0 0.2em theme("colors.accent.700" / 25%));
+      }
+    }
+
+    &.svg {
+      filter: drop-shadow(0 0 0 transparent);
+      &:hover {
+        filter: drop-shadow(0 0 0.2em theme("colors.accent.700" / 50%));
+      }
+      html.dark &:hover {
+        filter: drop-shadow(0 0 0.2em theme("colors.accent.500" / 50%));
+      }
+    }
+  }
+
+  .overlay {
+    content: "";
+    display: block;
+    position: absolute;
+    height: 100%;
+    width: 100%;
   }
 }

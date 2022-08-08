@@ -1,11 +1,10 @@
 import fs from "node:fs";
 import { Readable } from "node:stream";
 import { parse } from "cookie";
-import type { Handle } from "@sveltejs/kit";
+import type { Handle, GetSession, RequestEvent } from "@sveltejs/kit";
 import { getPath, getFile } from "$lib/files";
 
 const DARKMODE_COOKIE = "zhinstatic-darkmode";
-const DARKMODE_DEFAULT = true;
 
 export const handle: Handle = async ({ event, resolve }) => {
   /// File streaming
@@ -33,11 +32,17 @@ export const handle: Handle = async ({ event, resolve }) => {
     }
   }
 
-  const cookiesHead = event.request.headers.get("cookie");
-  const cookies = cookiesHead ? parse(cookiesHead) : {};
-  const darkmode = cookies[DARKMODE_COOKIE] ? cookies[DARKMODE_COOKIE] === "true" : DARKMODE_DEFAULT;
-
   return resolve(event, {
-    transformPage: ({ html }) => html.replace("%htmlclass%", darkmode ? "dark" : ""),
+    transformPage: ({ html }) => html.replace("%htmlclass%", isDarkmode(event) ?? true ? "dark" : ""),
   });
 };
+
+export const getSession: GetSession = async (event) => ({
+  darkmode: isDarkmode(event),
+});
+
+function isDarkmode(event: RequestEvent) {
+  const cookiesHead = event.request.headers.get("cookie");
+  const cookies = cookiesHead ? parse(cookiesHead) : {};
+  return cookies[DARKMODE_COOKIE] ? cookies[DARKMODE_COOKIE] === "true" : undefined;
+}

@@ -10,6 +10,14 @@ My Svelte learning project that serves static files.
 - _TODO:_ Automatically prunes its cache at given time.
 - _TODO:_ Generates thumbnails for images and videos.
 
+## Technologies used
+
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Svelte](https://svelte.dev/) (of course)
+- [SvelteKit](https://kit.svelte.dev/)
+- [Prisma](https://prisma.io/)
+- _TODO:_ [Sharp]()
+
 ## Usage
 
 ### Requirements

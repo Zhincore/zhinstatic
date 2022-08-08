@@ -1,11 +1,10 @@
 import { resolve } from "node:path";
 import { sveltekit } from "@sveltejs/kit/vite";
-import { viteCommonjs } from "@originjs/vite-plugin-commonjs";
 
 /** @type {import('vite').UserConfig} */
 const config = {
   envPrefix: "ZSTATIC_",
-  plugins: [sveltekit(), viteCommonjs()],
+  plugins: [sveltekit()],
   clearScreen: false,
   resolve: {
     alias: {

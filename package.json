@@ -17,7 +17,6 @@
   "devDependencies": {
     "@fortawesome/free-regular-svg-icons": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
-    "@originjs/vite-plugin-commonjs": "^1.0.3",
     "@sveltejs/adapter-node": "1.0.0-next.81",
     "@sveltejs/kit": "1.0.0-next.376",
     "@types/cookie": "^0.5.1",

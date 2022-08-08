@@ -1,15 +1,19 @@
-import { writable } from "svelte/store";
 import Cookies from "js-cookie";
+import { session } from "$app/stores";
 import { browser } from "$app/env";
+import { togglable } from "./togglable";
+import type { Togglable } from "./togglable";
 
 const COOKEY = "zhinstatic-darkmode";
 
 function createDarkmodeStore() {
-  if (!browser) return writable(true);
+  let initial: boolean | undefined = true;
+  session.subscribe((ses) => (initial = ses.darkmode));
+
+  if (!browser) return togglable(initial);
 
   const mediaq = window.matchMedia("(prefers-color-scheme: dark)");
-  const cookie = Cookies.get(COOKEY);
-  const store = writable(cookie === undefined ? mediaq.matches : cookie === "true");
+  const store = togglable(initial === undefined ? mediaq.matches : initial);
 
   store.subscribe((state) => {
     Cookies.set(COOKEY, state + "", { expires: 900, sameSite: "lax", secure: !import.meta.env.DEV });
@@ -19,4 +23,6 @@ function createDarkmodeStore() {
   return store;
 }
 
-export const darkmode = createDarkmodeStore();
+let store: Togglable;
+
+export const getDarkmode = () => store ?? (store = createDarkmodeStore());
