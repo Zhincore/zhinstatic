@@ -1,13 +1,10 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
-  import { normalizePath } from "$lib/utils";
-  import type { FileInfo } from "$lib/files";
+  import type { FileInfo } from "$server/files";
   import Loader from "$comps/Loader.svelte";
-  import { page } from "$app/stores";
-
   export let node: FileInfo;
+  export let path: string;
   const type = node.mime?.split("/")[0];
-  const url = normalizePath($page.params.path);
 
   let isLoaded = false;
   let isError = false;
@@ -29,7 +26,7 @@
 
   {#if type === "image"}
     <img
-      src={url}
+      src={path}
       alt=""
       class="min-h-8 max-h-full object-contain transition-opacity"
       class:opacity-0={!isLoaded}
@@ -39,8 +36,8 @@
     />
   {:else if type === "video"}
     <!-- svelte-ignore a11y-media-has-caption -->
-    <video src={url} autoplay controls loop class="min-h-8 max-h-full object-contain" />
+    <video src={path} autoplay controls loop class="min-h-8 max-h-full object-contain" />
   {:else}
-    <embed src={url} />
+    <embed src={path} />
   {/if}
 </div>

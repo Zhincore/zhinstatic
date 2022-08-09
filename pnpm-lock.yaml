@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@fortawesome/fontawesome-common-types': ^6.1.2
   '@fortawesome/free-regular-svg-icons': ^6.1.1
   '@fortawesome/free-solid-svg-icons': ^6.1.1
   '@prisma/client': ^4.1.1
@@ -43,6 +44,7 @@ dependencies:
   js-cookie: 3.0.1
 
 devDependencies:
+  '@fortawesome/fontawesome-common-types': 6.1.2
   '@fortawesome/free-regular-svg-icons': 6.1.1
   '@fortawesome/free-solid-svg-icons': 6.1.1
   '@sveltejs/adapter-node': 1.0.0-next.81
@@ -93,6 +95,12 @@ packages:
 
   /@fortawesome/fontawesome-common-types/6.1.1:
     resolution: {integrity: sha512-wVn5WJPirFTnzN6tR95abCx+ocH+3IFLXAgyavnf9hUmN0CfWoDjPT/BAWsUVwSlYYVBeCLJxaqi7ZGe4uSjBA==}
+    engines: {node: '>=6'}
+    requiresBuild: true
+    dev: true
+
+  /@fortawesome/fontawesome-common-types/6.1.2:
+    resolution: {integrity: sha512-wBaAPGz1Awxg05e0PBRkDRuTsy4B3dpBm+zreTTyd9TH4uUM27cAL4xWyWR0rLJCrRwzVsQ4hF3FvM6rqydKPA==}
     engines: {node: '>=6'}
     requiresBuild: true
     dev: true

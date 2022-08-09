@@ -1,15 +1,15 @@
-import { ErrorResponse } from "$lib/ErrorResponse";
-import { getPath, getNodeInfo } from "$lib/files";
+import { ErrorResponse } from "$server/ErrorResponse";
+import { getPath, getNodeInfo } from "$server/files";
 import type { RequestHandler } from "./__types/[...path]";
 
 export const get: RequestHandler<unknown> = async ({ params }) => {
   const path = getPath(params.path);
 
-  const nodeInfo = await getNodeInfo(path);
+  const node = await getNodeInfo(path);
 
-  if (!nodeInfo) return new ErrorResponse(404, "File ceased to exist while processing?");
+  if (!node) return new ErrorResponse(404, "File ceased to exist while processing?");
 
   return {
-    body: { nodeInfo },
+    body: { node, path: "/" + params.path },
   };
 };

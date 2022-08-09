@@ -3,8 +3,8 @@ import type { Stats } from "node:fs";
 import Path from "node:path";
 import { fileTypeFromFile } from "file-type";
 import type { File as FileRecord, PrismaPromise } from "@prisma/client";
-import { prisma } from "$lib/prisma";
-import { ErrorResponse } from "$lib/ErrorResponse";
+import { prisma } from "$server/prisma";
+import { ErrorResponse } from "$server/ErrorResponse";
 
 const ROOT_PATH = Path.resolve(process.env.ZSTATIC_PATH || import.meta.env.ZSTATIC_PATH);
 
@@ -64,10 +64,8 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
 
   if (!db) {
     const type = await fileTypeFromFile(path);
-    if (type) {
-      _db = { path, ...type };
-      deferedCache.push(_db);
-    }
+    _db = { path, ...(type ?? { mime: null, ext: Path.extname(path) }) };
+    deferedCache.push(_db);
   }
 
   return {

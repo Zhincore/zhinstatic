@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    height: 100%;
+  }
+}
+
 @layer components {
   .link {
     @apply transition hover:text-accent-500 dark:hover:text-accent-200;

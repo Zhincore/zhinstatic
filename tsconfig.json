@@ -4,7 +4,9 @@
     "paths": {
       "$lib": ["src/lib"],
       "$lib/*": ["src/lib/*"],
-      "$comps/*": ["src/lib/components/*"]
+      "$stores/*": ["src/lib/stores/*"],
+      "$comps/*": ["src/lib/components/*"],
+      "$server/*": ["src/server/*"]
     },
     "allowJs": true,
     "checkJs": true,

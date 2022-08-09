@@ -17,33 +17,63 @@ interface ListWindowingInput<T> {
   item?: HTMLElement | number;
 }
 
+interface ListWindowingOptions<T> extends Partial<ListWindowingInput<T>> {
+  autoStart?: boolean;
+}
+
+interface ListWindowingItem<T> {
+  offsetTop: number;
+  offsetLeft: number;
+  width: number;
+  data: T;
+}
+
 interface ListWindowingOutput<T> {
   /** The calulated total height of the list. */
   scrollHeight: number;
-  /** The current scroll offset from the top of the list. */
-  offset: number;
+  /** Whether or not the output can be trusted */
+  ready: boolean;
   /** Part of the list that should be visible */
-  listWindow: T[];
+  listWindow: ListWindowingItem<T>[];
 }
 
 export class ListWindowing<T>
   extends EventEmitter<ListWindowingEvents>
   implements Readable<ListWindowing<T>>, ListWindowingInput<T>, ListWindowingOutput<T>
 {
+  private lastPageSize = 0;
+  private lastScroll = 0;
+  private lastList: T[] = [];
+
   private frame?: number;
+  private _list: T[] = [];
   public columns = 1;
-  public list: T[] = [];
   public windowEl?: HTMLElement;
   public item?: HTMLElement | number;
 
   scrollHeight = 0;
-  offset = 0;
-  listWindow: T[] = [];
+  ready = false;
+  listWindow: ListWindowingItem<T>[] = [];
 
-  constructor(autoStart = true, list?: T[]) {
+  get list() {
+    return this._list;
+  }
+
+  set list(val: T[]) {
+    this.ready = false;
+    // Reset the window to prevent stale entries
+    this.listWindow = (this._list = val).map((data) => ({ data, offsetLeft: 0, offsetTop: 0, width: 0 }));
+  }
+
+  constructor(options?: ListWindowingOptions<T>) {
     super();
-    if (list) this.listWindow = list;
-    if (autoStart) this.start();
+    if (options) {
+      const { autoStart = true, ...inputs } = options;
+
+      Object.assign(this, inputs);
+
+      if (autoStart) this.start();
+    }
   }
 
   subscribe = (run: Subscriber<ListWindowing<T>>): Unsubscriber => {
@@ -65,18 +95,35 @@ export class ListWindowing<T>
 
     this.emit("preupdate");
 
+    // Input calcs
     const windHeight = this.windowEl.getBoundingClientRect().height;
     const rowHeight = typeof this.item === "number" ? this.item : this.item.getBoundingClientRect().height;
-
     const scroll = this.windowEl.scrollTop;
+
     const pageSize = Math.ceil(windHeight / rowHeight) * this.columns;
+
+    // Skip update if nothing changed
+    if (this.lastList === this.list && this.lastPageSize === pageSize && this.lastScroll === scroll) return; // Unchanged
+    this.lastList = this.list;
+    this.lastPageSize = pageSize;
+    this.lastScroll = scroll;
+
+    // Output calcs
     const offset = Math.floor(scroll / rowHeight);
     const itemOffset = offset * this.columns;
 
-    this.scrollHeight = rowHeight * (this.list.length / this.columns);
-    this.offset = rowHeight * Math.max(0, offset);
-    this.listWindow = this.list.slice(itemOffset, Math.ceil(itemOffset + pageSize));
+    const topOffset = rowHeight * offset;
+    const colWidth = 100 / this.columns;
 
+    this.scrollHeight = rowHeight * (this.list.length / this.columns);
+    this.listWindow = this.list.slice(itemOffset, Math.ceil(itemOffset + pageSize + this.columns)).map((data, i) => ({
+      data,
+      offsetTop: topOffset + Math.floor(i / this.columns) * rowHeight,
+      offsetLeft: colWidth * (i % this.columns),
+      width: colWidth,
+    }));
+
+    this.ready = true;
     this.emit("update");
   }
 

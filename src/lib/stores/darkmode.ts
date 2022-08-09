@@ -1,8 +1,8 @@
 import Cookies from "js-cookie";
 import { session } from "$app/stores";
 import { browser } from "$app/env";
-import { togglable } from "./togglable";
-import type { Togglable } from "./togglable";
+import { togglable } from "$lib/togglable";
+import type { Togglable } from "$lib/togglable";
 
 const COOKEY = "zhinstatic-darkmode";
 

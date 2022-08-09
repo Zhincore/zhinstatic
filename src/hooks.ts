@@ -2,39 +2,47 @@ import fs from "node:fs";
 import { Readable } from "node:stream";
 import { parse } from "cookie";
 import type { Handle, GetSession, RequestEvent } from "@sveltejs/kit";
-import { getPath, getFile } from "$lib/files";
+import { ErrorResponse } from "$server/ErrorResponse";
+import { getPath, getFile } from "$server/files";
 
 const DARKMODE_COOKIE = "zhinstatic-darkmode";
 
 export const handle: Handle = async ({ event, resolve }) => {
-  /// File streaming
-  const accept = event.request.headers.get("Accept");
-  if (
-    "path" in event.params &&
-    !event.request.headers.has("X-Sveltekit-Load") &&
-    (!accept || !accept.startsWith("text/html"))
-  ) {
-    const path = getPath(event.params.path);
+  try {
+    /// File streaming
+    const accept = event.request.headers.get("Accept");
+    if (
+      "path" in event.params &&
+      !event.request.headers.has("X-Sveltekit-Load") &&
+      (!accept || !accept.startsWith("text/html"))
+    ) {
+      const path = getPath(event.params.path);
 
-    const stat = await fs.promises.stat(path);
-    if (stat.isFile()) {
-      const info = await getFile(path, stat);
-      const stream = fs.createReadStream(path);
-      stream.on("error", (error) => {
-        if (!["EPIPE", "AbortError"].includes(error.name)) throw error;
-      });
-      return new Response(Readable.toWeb(stream), {
-        headers: {
-          "Content-Type": info.mime ?? "application/octet-stream",
-          "Content-Length": stat.size + "",
-        },
-      });
+      const stat = await fs.promises.stat(path);
+      if (stat.isFile()) {
+        const info = await getFile(path, stat);
+        const stream = fs.createReadStream(path);
+        stream.on("error", (error) => {
+          if (!["EPIPE", "AbortError"].includes(error.name)) throw error;
+        });
+        return new Response(Readable.toWeb(stream), {
+          headers: {
+            "Content-Type": info.mime ?? "application/octet-stream",
+            "Content-Length": stat.size + "",
+          },
+        });
+      }
     }
-  }
 
-  return resolve(event, {
-    transformPage: ({ html }) => html.replace("%htmlclass%", isDarkmode(event) ?? true ? "dark" : ""),
-  });
+    return await resolve(event, {
+      transformPage: ({ html }) => html.replace("%htmlclass%", isDarkmode(event) ?? true ? "dark" : ""),
+    });
+  } catch (error) {
+    if (error instanceof ErrorResponse) {
+      return new Response(JSON.stringify(error), { status: error.status });
+    }
+    throw error;
+  }
 };
 
 export const getSession: GetSession = async (event) => ({
