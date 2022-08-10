@@ -21,6 +21,9 @@ module.exports = {
           900: "#7b4200",
         },
       },
+      backgroundImage: {
+        radialShadow: "radial-gradient(closest-side, #0009, #0000)",
+      },
       transitionProperty: {
         DEFAULT:
           "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, text-shadow",

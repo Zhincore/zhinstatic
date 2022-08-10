@@ -3,12 +3,11 @@ import { session } from "$app/stores";
 import { browser } from "$app/env";
 import { togglable } from "$lib/togglable";
 import type { Togglable } from "$lib/togglable";
-
-const COOKEY = "zhinstatic-darkmode";
+import { config } from "$lib/config";
 
 function createDarkmodeStore() {
-  let initial: boolean | undefined = true;
-  session.subscribe((ses) => (initial = ses.darkmode));
+  let initial: boolean | undefined = config.darkmodeDefault;
+  session.subscribe((ses) => (initial = ses.darkmode))();
 
   if (!browser) return togglable(initial);
 
@@ -16,7 +15,7 @@ function createDarkmodeStore() {
   const store = togglable(initial === undefined ? mediaq.matches : initial);
 
   store.subscribe((state) => {
-    Cookies.set(COOKEY, state + "", { expires: 900, sameSite: "lax", secure: !import.meta.env.DEV });
+    Cookies.set(config.darkmodeCookie, state + "", { expires: 900, sameSite: "lax", secure: !import.meta.env.DEV });
     document.documentElement.classList.toggle("dark", state);
   });
 

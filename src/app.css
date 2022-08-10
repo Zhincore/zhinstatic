@@ -10,24 +10,20 @@
 
 @layer components {
   .link {
-    @apply transition hover:text-accent-500 dark:hover:text-accent-200;
+    @apply transition hover:text-accent-500 dark:hover:text-accent-300;
 
-    &:not(.svg) {
-      text-shadow: 0 0 0 transparent;
-      &:hover {
-        text-shadow: 0 0 0.2em theme("colors.accent.800" / 50%);
-      }
-      html.dark &:hover {
-        filter: drop-shadow(0 0 0.2em theme("colors.accent.700" / 25%));
-      }
+    &:hover {
+      text-shadow: 0 0 0.2em theme("colors.accent.800" / 50%);
+    }
+    &.svg:hover {
+      filter: drop-shadow(0 0 0.2em theme("colors.accent.700" / 50%));
     }
 
-    &.svg {
-      filter: drop-shadow(0 0 0 transparent);
+    html.dark {
       &:hover {
-        filter: drop-shadow(0 0 0.2em theme("colors.accent.700" / 50%));
+        text-shadow: 0 0 0.2em theme("colors.accent.700" / 25%);
       }
-      html.dark &:hover {
+      &.svg:hover {
         filter: drop-shadow(0 0 0.2em theme("colors.accent.500" / 50%));
       }
     }
@@ -39,5 +35,11 @@
     position: absolute;
     height: 100%;
     width: 100%;
+  }
+}
+
+@layer utilities {
+  .text-shadow-none {
+    text-shadow: none;
   }
 }

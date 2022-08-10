@@ -8,7 +8,6 @@ const config = {
   clearScreen: false,
   resolve: {
     alias: {
-      $lib: resolve("./src/lib"),
       $stores: resolve("./src/lib/stores"),
       $comps: resolve("./src/lib/components"),
       $server: resolve("./src/server"),

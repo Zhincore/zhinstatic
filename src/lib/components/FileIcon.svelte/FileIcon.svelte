@@ -14,17 +14,18 @@
 
   let thumbnailLoaded = false;
 
-  const type = "mime" in file ? file.mime?.split("/")[0] : "folder";
+  const type = "size" in file ? file.mime?.split("/")[0] : "folder";
 </script>
 
 <div class="relative h-24 w-full text-center {classes}">
   {#if type === "image" || type === "video"}
+    <FileFAIcon data={type === "video" ? faFileVideo : faFileImage} hide={thumbnailLoaded} />
+
     <Image
       src={url}
-      class="absolute top-1/2 left-1/2 h-24 -translate-y-1/2 -translate-x-1/2 transform shadow-lg"
+      class="absolute top-1/2 left-1/2 block h-24 -translate-y-1/2 -translate-x-1/2 transform rounded outline-accent-400 transition group-hover:outline"
       bind:isLoaded={thumbnailLoaded}
     />
-    <FileFAIcon data={type === "video" ? faFileVideo : faFileImage} hide={thumbnailLoaded} />
   {:else}
     <FileFAIcon data={type === "folder" ? faFolder : faFile} hide={thumbnailLoaded} />
   {/if}

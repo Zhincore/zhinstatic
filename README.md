@@ -7,16 +7,23 @@ My Svelte learning project that serves static files.
 - Provides responsive web file browser.
 - Sends the web UI or the file depending on the `Accept` header.
   - This means that in the browser you'll have UI but if you send the same link to Discord or `wget` you'll get the file itself.
-- _TODO:_ Automatically prunes its cache at given time.
-- _TODO:_ Generates thumbnails for images and videos.
+- Finds correct mime type according to the file's extension or it's magic number.
+  - Caches magic number results in SQLite for performance.
+- Static files are streamed.
+- Prerenders pages in dark/light mode according to cookie.
+
+### TODO
+
+- Automatically prunes its cache at given time.
+- Generates thumbnails in various sizes for images and videos.
 
 ## Technologies used
 
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Svelte](https://svelte.dev/) (of course)
 - [SvelteKit](https://kit.svelte.dev/)
+- [Sharp](https://sharp.pixelplumbing.com/)
 - [Prisma](https://prisma.io/)
-- _TODO:_ [Sharp]()
 
 ## Usage
 
@@ -24,11 +31,13 @@ My Svelte learning project that serves static files.
 
 - PNPM (optimally)
 - Node v16 to v18
+- FFmpeg for thumbnails of videos or unsupported images (optional; won't generate thumbnails for those)
 
 ### Building
 
 1. `pnpm install`
-2. `pnpm build`
+2. `pnpm build:db`
+3. `pnpm build`
 
 ### Running
 

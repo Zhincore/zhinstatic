@@ -1,10 +1,13 @@
 import fs from "fs";
 import type { Stats } from "node:fs";
+import { Readable, finished } from "node:stream";
 import Path from "node:path";
 import { fileTypeFromFile } from "file-type";
+import { lookup as mimeLookup } from "mime-types";
 import type { File as FileRecord, PrismaPromise } from "@prisma/client";
 import { prisma } from "$server/prisma";
 import { ErrorResponse } from "$server/ErrorResponse";
+import { config } from "$lib/config";
 
 const ROOT_PATH = Path.resolve(process.env.ZSTATIC_PATH || import.meta.env.ZSTATIC_PATH);
 
@@ -56,25 +59,47 @@ export async function getNodeInfo(path: string): Promise<NodeInfo | undefined> {
 }
 
 export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
-  const [stat, db] = await Promise.all([
-    aStat ?? (await fs.promises.stat(path)),
-    prisma.file.findUnique({ where: { path } }),
-  ]);
-  let _db = db ?? undefined;
+  const stat = aStat ?? (await fs.promises.stat(path));
 
-  if (!db) {
-    const type = await fileTypeFromFile(path);
-    _db = { path, ...(type ?? { mime: null, ext: Path.extname(path) }) };
-    deferedCache.push(_db);
+  const ext = Path.extname(path);
+  const type: { ext: string | null; mime: string | null } = { ext, mime: mimeLookup(ext) || null };
+
+  if (!type.mime || config.checkMagicFor.includes(type.mime) || config.checkMagicFor.includes(ext)) {
+    let magic: { ext: string | null; mime: string | null } | null = await prisma.file.findUnique({ where: { path } });
+
+    if (!magic) {
+      magic = (await fileTypeFromFile(path)) ?? null;
+      if (magic) deferedCache.push({ path, ...magic });
+    }
+    if (magic) Object.assign(type, magic);
   }
 
   return {
     name: Path.basename(path),
     size: stat.size,
     mtime: stat.mtimeMs,
-    mime: _db?.mime ?? undefined,
-    ext: _db?.ext ?? undefined,
+    mime: type.mime ?? undefined,
+    ext: type.ext ?? undefined,
   };
+}
+
+export async function streamFileResponse(path: string) {
+  const stat = await fs.promises.stat(path);
+  if (!stat.isFile()) return;
+
+  const info = await getFile(path, stat);
+  const stream = fs.createReadStream(path);
+  finished(stream, (error) => {
+    // Ignore dumb errors from client disconnecting
+    if (!error || ["EPIPE", "AbortError", "ECONNRESET", "ERR_STREAM_DESTROYED"].includes(error.name)) return;
+    throw error;
+  });
+  return new Response(Readable.toWeb(stream), {
+    headers: {
+      "Content-Type": info.mime ?? "application/octet-stream",
+      "Content-Length": stat.size + "",
+    },
+  });
 }
 
 async function saveDeferedCache() {

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
-  import { page, navigating } from "$app/stores";
+  import { navigating } from "$app/stores";
   import type { NodeInfo } from "$server/files";
   import Loader from "$comps/Loader.svelte";
   import FileViewer from "./_file.svelte";
@@ -8,13 +8,6 @@
 
   export let node: NodeInfo;
   export let path: string;
-
-  let cachedPath = path;
-  let cachedNode = node;
-
-  $: $navigating || (cachedPath = path);
-  $: $navigating || (cachedNode = node);
-  $: ready = "/" + $page.params.path === path;
 </script>
 
 <svelte:head>
@@ -22,7 +15,7 @@
 </svelte:head>
 
 {#key path}
-  <div class="absolute inset-0" class:pointer-events-none={$navigating}>
+  <div class="absolute inset-0">
     {#if "files" in node}
       <FolderViewer {node} {path} />
     {:else}
@@ -32,5 +25,7 @@
 {/key}
 
 {#if $navigating}
-  <div class="absolute inset-0 flex items-center justify-center" in:fade={{ delay: 250 }} out:fade><Loader /></div>
+  <div class="absolute inset-0 z-10 flex items-center justify-center overflow-hidden" in:fade={{ delay: 250 }} out:fade>
+    <div class="bg-radialShadow p-24"><Loader /></div>
+  </div>
 {/if}

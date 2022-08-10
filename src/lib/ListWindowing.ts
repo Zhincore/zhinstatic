@@ -2,8 +2,8 @@ import EventEmitter from "eventemitter3";
 import type { Readable, Subscriber, Unsubscriber } from "svelte/store";
 
 interface ListWindowingEvents {
-  update: () => void;
   preupdate: () => void;
+  update: () => void;
 }
 
 interface ListWindowingInput<T> {
@@ -42,6 +42,7 @@ export class ListWindowing<T>
   implements Readable<ListWindowing<T>>, ListWindowingInput<T>, ListWindowingOutput<T>
 {
   private lastPageSize = 0;
+  private lastColWidth = 0;
   private lastScroll = 0;
   private lastList: T[] = [];
 
@@ -96,16 +97,24 @@ export class ListWindowing<T>
     this.emit("preupdate");
 
     // Input calcs
-    const windHeight = this.windowEl.getBoundingClientRect().height;
+    const { clientHeight: windHeight, clientWidth: windWidth } = this.windowEl;
     const rowHeight = typeof this.item === "number" ? this.item : this.item.getBoundingClientRect().height;
     const scroll = this.windowEl.scrollTop;
 
     const pageSize = Math.ceil(windHeight / rowHeight) * this.columns;
+    const colWidth = windWidth / this.columns;
 
     // Skip update if nothing changed
-    if (this.lastList === this.list && this.lastPageSize === pageSize && this.lastScroll === scroll) return; // Unchanged
+    if (
+      this.lastList === this.list &&
+      this.lastPageSize === pageSize &&
+      this.lastColWidth === colWidth &&
+      this.lastScroll === scroll
+    )
+      return; // Unchanged
     this.lastList = this.list;
     this.lastPageSize = pageSize;
+    this.lastColWidth = colWidth;
     this.lastScroll = scroll;
 
     // Output calcs
@@ -113,7 +122,6 @@ export class ListWindowing<T>
     const itemOffset = offset * this.columns;
 
     const topOffset = rowHeight * offset;
-    const colWidth = 100 / this.columns;
 
     this.scrollHeight = rowHeight * (this.list.length / this.columns);
     this.listWindow = this.list.slice(itemOffset, Math.ceil(itemOffset + pageSize + this.columns)).map((data, i) => ({
