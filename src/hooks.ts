@@ -1,18 +1,19 @@
 import { parse } from "cookie";
 import type { Handle, GetSession, RequestEvent } from "@sveltejs/kit";
-import { ErrorResponse } from "$server/ErrorResponse";
+import { HTTPError } from "$server/HTTPError";
 import { getPath, streamFileResponse } from "$server/files";
 import { config } from "$lib/config";
 
 export const handle: Handle = async ({ event, resolve }) => {
   try {
-    /// File streaming
-    const accept = event.request.headers.get("Accept");
+    const accept = event.request.headers.get("Accept") ?? "*/*";
     if (
       "path" in event.params &&
       !event.request.headers.has("X-Sveltekit-Load") &&
-      (!accept || !accept.startsWith("text/html"))
+      !accept.startsWith("text/html") &&
+      !accept.startsWith("application/json")
     ) {
+      /// File streaming
       const path = getPath(event.params.path);
       const response = await streamFileResponse(path);
       if (response) return response;
@@ -22,7 +23,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       transformPageChunk: ({ html }) => html.replace("%htmlclass%", isDarkmode(event) ?? true ? "dark" : ""),
     });
   } catch (error) {
-    if (error instanceof ErrorResponse) {
+    if (error instanceof HTTPError) {
       return new Response(JSON.stringify(error), { status: error.status });
     }
     throw error;

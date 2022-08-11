@@ -6,7 +6,7 @@ import { fileTypeFromFile } from "file-type";
 import { lookup as mimeLookup } from "mime-types";
 import type { File as FileRecord, PrismaPromise } from "@prisma/client";
 import { prisma } from "$server/prisma";
-import { ErrorResponse } from "$server/ErrorResponse";
+import { HTTPError } from "$server/HTTPError";
 import { config } from "$lib/config";
 
 const ROOT_PATH = Path.resolve(process.env.ZSTATIC_PATH || import.meta.env.ZSTATIC_PATH);
@@ -28,8 +28,8 @@ const deferedCache: FileRecord[] = [];
 
 export function getPath(paramPath: string) {
   const path = Path.join(ROOT_PATH, paramPath);
-  if (!path.startsWith(ROOT_PATH)) throw new ErrorResponse(400, "Invalid path");
-  if (!fs.existsSync(path)) throw new ErrorResponse(404, "File not found");
+  if (!path.startsWith(ROOT_PATH)) throw new HTTPError(400, "Invalid path");
+  if (!fs.existsSync(path)) throw new HTTPError(404, "File not found");
   return path;
 }
 
@@ -83,11 +83,14 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
   };
 }
 
-export async function streamFileResponse(path: string) {
-  const stat = await fs.promises.stat(path);
-  if (!stat.isFile()) return;
+export async function streamFileResponse(path: string, info?: FileInfo) {
+  if (!info) {
+    const stat = await fs.promises.stat(path);
+    if (!stat.isFile()) return;
 
-  const info = await getFile(path, stat);
+    info = await getFile(path, stat);
+  }
+
   const stream = fs.createReadStream(path);
   finished(stream, (error) => {
     // Ignore dumb errors from client disconnecting
@@ -97,7 +100,7 @@ export async function streamFileResponse(path: string) {
   return new Response(Readable.toWeb(stream), {
     headers: {
       "Content-Type": info.mime ?? "application/octet-stream",
-      "Content-Length": stat.size + "",
+      "Content-Length": info.size + "",
     },
   });
 }

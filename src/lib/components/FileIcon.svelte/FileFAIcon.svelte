@@ -6,4 +6,4 @@
   export let hide = false;
 </script>
 
-<Icon {data} scale={4} class="m-4 transition-opacity {hide ? 'opacity-0' : ''}" />
+<Icon {data} scale={4} class="m-4 transition {hide ? 'opacity-0' : ''}" />

@@ -1,27 +1,30 @@
 import { spawn } from "node:child_process";
 
-/**
- * generatePoster
- */
-export function generatePoster(path: string, size: number, sizing: "increase" | "decrease") {
+export function ffmpegThumbnail(input: string, output: string, size: number, format: string, animated?: boolean) {
   const ffmpeg = spawn("ffmpeg", [
     "-i",
-    path,
+    input,
     "-map",
     "v:0",
     "-v",
     "fatal",
     "-vf",
-    `select=gt(scene\\,0.4),scale=${size}:${size}:force_original_aspect_ratio=${sizing}`,
+    `${animated ? "" : "select=gt(scene\\,0.4),"}scale=${size}:${size}:force_original_aspect_ratio=increase`,
     "-pix_fmt",
     "yuv420p",
-    "-frames",
-    "1",
+    ...(animated ? [] : ["frames", "1"]),
     "-vsync",
     "vfr",
-    "-y",
-    "-",
+    "-r",
+    "10",
+    "-f",
+    format,
+    output,
   ]);
-  ffmpeg.stderr.on("data", (d) => console.log(d.toString()));
-  return ffmpeg.stdout;
+  let err = "";
+  ffmpeg.stderr.on("data", (d) => (err += String(d)));
+  return new Promise<void>((resolve, reject) => {
+    ffmpeg.once("error", reject);
+    ffmpeg.once("close", (code) => (code === 0 ? resolve() : reject(err)));
+  });
 }

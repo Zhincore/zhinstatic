@@ -23,7 +23,7 @@
 
     <Image
       src={url}
-      class="absolute top-1/2 left-1/2 block h-24 -translate-y-1/2 -translate-x-1/2 transform rounded outline-accent-400 transition group-hover:outline"
+      class="absolute top-1/2 left-1/2 block h-24 -translate-y-1/2 -translate-x-1/2 transform rounded outline outline-0 outline-accent-400 transition-outline group-hover:outline-2"
       bind:isLoaded={thumbnailLoaded}
     />
   {:else}

@@ -14,8 +14,9 @@ My Svelte learning project that serves static files.
 
 ### TODO
 
-- Automatically prunes its cache at given time.
 - Generates thumbnails in various sizes for images and videos.
+- Automatically prunes its cache at given time.
+- Automatically invalidate cache on file changes.
 
 ## Technologies used
 

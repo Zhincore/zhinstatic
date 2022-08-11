@@ -4,5 +4,10 @@ export const config = {
 
   checkMagicFor: ["application/octet-stream"],
 
-  typeOverrides: {},
+  thumbnails: {
+    path: "cache/thumbnails",
+    widths: [64, 128, 256, 1024],
+    formats: ["avif", "webp", "jpg"] as const,
+    animatedMimes: ["image/gif", "image/webp", "image/avif"],
+  },
 };
