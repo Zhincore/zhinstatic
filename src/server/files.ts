@@ -1,13 +1,14 @@
-import fs from "fs";
+import fs from "node:fs";
+import { ReadableStream } from "node:stream/web";
 import type { Stats } from "node:fs";
-import { Readable, finished } from "node:stream";
 import Path from "node:path";
 import { fileTypeFromFile } from "file-type";
 import { lookup as mimeLookup } from "mime-types";
 import type { File as FileRecord, PrismaPromise } from "@prisma/client";
 import { prisma } from "$server/prisma";
 import { HTTPError } from "$server/HTTPError";
-import { config } from "$lib/config";
+import { serverConfig } from "./config";
+import { FileSource } from "./FileSource";
 
 const ROOT_PATH = Path.resolve(process.env.ZSTATIC_PATH || import.meta.env.ZSTATIC_PATH);
 
@@ -64,7 +65,7 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
   const ext = Path.extname(path);
   const type: { ext: string | null; mime: string | null } = { ext, mime: mimeLookup(ext) || null };
 
-  if (!type.mime || config.checkMagicFor.includes(type.mime) || config.checkMagicFor.includes(ext)) {
+  if (!type.mime || serverConfig.checkMagicFor.includes(type.mime) || serverConfig.checkMagicFor.includes(ext)) {
     let magic: { ext: string | null; mime: string | null } | null = await prisma.file.findUnique({ where: { path } });
 
     if (!magic) {
@@ -86,18 +87,24 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
 export async function streamFileResponse(path: string, info?: FileInfo) {
   if (!info) {
     const stat = await fs.promises.stat(path);
-    if (!stat.isFile()) return;
+    if (!stat.isFile()) throw new HTTPError(400, "Cannot stream a folder");
 
     info = await getFile(path, stat);
   }
 
-  const stream = fs.createReadStream(path);
-  finished(stream, (error) => {
-    // Ignore dumb errors from client disconnecting
-    if (!error || ["EPIPE", "AbortError", "ECONNRESET", "ERR_STREAM_DESTROYED"].includes(error.name)) return;
-    throw error;
-  });
-  return new Response(Readable.toWeb(stream), {
+  const webstream = new ReadableStream(new FileSource(path));
+
+  // finished(stream, (error) => {
+  //   // Ignore dumb errors from client disconnecting
+  //   if (
+  //     !error ||
+  //     ["EPIPE", "AbortError", "ECONNRESET", "ERR_STREAM_DESTROYED", "ERR_STREAM_PREMATURE_CLOSE"].includes(error.name)
+  //   )
+  //     return;
+  //   throw error;
+  // });
+
+  return new Response(webstream, {
     headers: {
       "Content-Type": info.mime ?? "application/octet-stream",
       "Content-Length": info.size + "",

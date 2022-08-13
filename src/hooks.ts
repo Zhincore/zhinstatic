@@ -2,6 +2,8 @@ import { parse } from "cookie";
 import type { Handle, GetSession, RequestEvent } from "@sveltejs/kit";
 import { HTTPError } from "$server/HTTPError";
 import { getPath, streamFileResponse } from "$server/files";
+import { getThumbnail } from "$server/thumbnails";
+import type { ThumbnailFormat } from "$server/thumbnails";
 import { config } from "$lib/config";
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -14,7 +16,14 @@ export const handle: Handle = async ({ event, resolve }) => {
       !accept.startsWith("application/json")
     ) {
       /// File streaming
-      const path = getPath(event.params.path);
+      let path = getPath(event.params.path);
+
+      if (event.url.searchParams.has("width")) {
+        const width = parseInt(event.url.searchParams.get("width") ?? "");
+        const format = event.url.searchParams.get("format") ?? "";
+        path = await getThumbnail(path, width, format as ThumbnailFormat);
+      }
+
       const response = await streamFileResponse(path);
       if (response) return response;
     }
@@ -24,7 +33,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     });
   } catch (error) {
     if (error instanceof HTTPError) {
-      return new Response(JSON.stringify(error), { status: error.status });
+      return new Response(JSON.stringify({ status: error.status, message: error.message }), { status: error.status });
     }
     throw error;
   }
