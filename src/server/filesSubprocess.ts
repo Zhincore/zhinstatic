@@ -23,7 +23,7 @@ export function ffmpegThumbnail(input: string, output: string, size: number) {
     "-map",
     "v:0",
     "-vf",
-    `select=gt(scene\\,0.4),scale=${size}:${size}:force_original_aspect_ratio=increase`,
+    `mpdecimate,scale=${size}:${size}:force_original_aspect_ratio=increase`,
     "-frames",
     "1",
     output,

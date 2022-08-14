@@ -56,5 +56,9 @@ export async function getThumbnail(path: string, width: number, format: Thumbnai
       .toFile(outputPath);
 
     return outputPath;
-  }).catch(() => path); // TODO: Error handling?
+  }).catch((err) => {
+    // TODO: Error handling?
+    if (import.meta.env.DEV) console.error(err);
+    return path;
+  });
 }

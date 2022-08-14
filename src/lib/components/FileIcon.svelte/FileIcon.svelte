@@ -3,6 +3,8 @@
   import { faFolder } from "@fortawesome/free-solid-svg-icons/faFolder";
   import { faFileImage } from "@fortawesome/free-solid-svg-icons/faFileImage";
   import { faFileVideo } from "@fortawesome/free-solid-svg-icons/faFileVideo";
+  import { faCaretRight } from "@fortawesome/free-solid-svg-icons/faCaretRight";
+  import Icon from "svelte-awesome";
   import type { NodeInfo, FileInfo } from "$server/files";
   import Image from "$comps/Image.svelte";
   import FileFAIcon from "./FileFAIcon.svelte";
@@ -23,10 +25,14 @@
   {#if type === "image" || type === "video"}
     <FileFAIcon data={type === "video" ? faFileVideo : faFileImage} hide={thumbnailLoaded} />
 
+    {#if type === "video"}
+      <Icon data={faCaretRight} class="absolute-centered z-10 opacity-80 drop-shadow" scale={3} />
+    {/if}
+
     <Image
       src={url}
       {file}
-      class="absolute top-1/2 left-1/2 block h-24 -translate-y-1/2 -translate-x-1/2 transform rounded outline outline-0 outline-accent-400 transition-outline group-hover:outline-2"
+      class="absolute-centered block h-24 rounded outline outline-0 outline-accent-400 transition-outline group-hover:outline-2"
       bind:isLoaded={thumbnailLoaded}
     />
   {:else}
