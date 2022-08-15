@@ -2,23 +2,29 @@
   import { onMount, onDestroy, tick } from "svelte";
   import { fade } from "svelte/transition";
   import type { TransitionConfig } from "svelte/transition";
+  import type Fuse from "fuse.js";
   import { browser } from "$app/env";
   import { navigating } from "$app/stores";
   import type { FolderInfo, NodeInfo } from "$server/files";
   import { normalizePath } from "$lib/utils";
+  import { sortFileNodes } from "$lib/sorting";
   import { ListWindowing } from "$lib/ListWindowing";
   import scrollRestore from "$lib/scrollRestore";
   import FileIcon from "$lib/components/FileIcon.svelte/FileIcon.svelte";
+  import type { Sizes } from "$comps/Image.svelte";
+  import FolderTools from "$comps/FolderTools.svelte";
 
   export let node: FolderInfo;
   export let path: string;
 
-  let sorted = [...node.files].sort((a, b) => a.name.localeCompare(b.name));
+  let sorted = sortFileNodes(node.files);
 
   let windowEl: HTMLElement;
   let itemEl: HTMLElement;
   let listEl: HTMLElement;
   let itemClass: string;
+  let fuse: Fuse<NodeInfo>;
+  let search = "";
   $: listStyle = browser && listEl ? window.getComputedStyle(listEl) : undefined;
 
   const windowing = new ListWindowing<NodeInfo>({ autoStart: false, list: sorted });
@@ -39,14 +45,23 @@
   const navFade = (node: Element, i: number): TransitionConfig =>
     $navigating ? fade(node, { delay: i * 8, duration: 100 }) : fade(node);
 
-  $: sorted = [...node.files].sort((a, b) => a.name.localeCompare(b.name));
-  $: windowing.list = sorted;
+  $: if (search && !fuse)
+    import("fuse.js").then(({ default: Fuse }) => (fuse = new Fuse(sorted, { keys: ["name", "mime"] })));
+
+  $: if (fuse) fuse.setCollection(node.files);
+  $: sortedList = search && fuse ? fuse.search(search).map((item) => item.item) : sortFileNodes(node.files);
+
+  $: windowing.list = sortedList;
   $: windowing.windowEl = windowEl;
   $: windowing.item = itemEl;
   $: if ($navigating?.from.pathname === path && windowEl) scrollRestore.setPathScroll(path, windowEl.scrollTop);
 
   $: itemClass = "link group flex h-40 flex-col items-center break-all";
+
+  const sizes: Sizes = { "": "192px" };
 </script>
+
+<FolderTools bind:search />
 
 <div class="relative h-full w-full overflow-y-auto" bind:this={windowEl}>
   <ul
@@ -66,7 +81,7 @@
           style={$windowing.ready ? `top: ${pos.offsetTop}px; left: ${pos.offsetLeft}px; width: ${pos.width}px` : ""}
         >
           <a href={url} class={itemClass} transition:navFade={i}>
-            <FileIcon node={file} {url} class="" />
+            <FileIcon node={file} {url} {sizes} class="" />
             <div class="mt-2 max-h-12 max-w-full overflow-hidden text-ellipsis text-center">{file.name}</div>
           </a>
         </li>

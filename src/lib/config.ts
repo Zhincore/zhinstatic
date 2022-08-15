@@ -1,3 +1,5 @@
+export { default as breakpoints } from "../tailwind.breakpoints.config.json";
+
 export const config = {
   darkmodeCookie: "zhinstatic-darkmode",
   darkmodeDefault: true,

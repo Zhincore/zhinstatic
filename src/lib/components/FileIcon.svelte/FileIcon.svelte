@@ -7,10 +7,12 @@
   import Icon from "svelte-awesome";
   import type { NodeInfo, FileInfo } from "$server/files";
   import Image from "$comps/Image.svelte";
+  import type { Sizes } from "$comps/Image.svelte";
   import FileFAIcon from "./FileFAIcon.svelte";
 
   export let node: NodeInfo;
   export let url: string;
+  export let sizes: Sizes | undefined = undefined;
   let classes = "";
   export { classes as class };
 
@@ -26,12 +28,17 @@
     <FileFAIcon data={type === "video" ? faFileVideo : faFileImage} hide={thumbnailLoaded} />
 
     {#if type === "video"}
-      <Icon data={faCaretRight} class="absolute-centered z-10 opacity-80 drop-shadow" scale={3} />
+      <Icon
+        data={faCaretRight}
+        class="absolute-centered z-10 opacity-80 drop-shadow transition {thumbnailLoaded ? '' : 'opacity-0'}"
+        scale={3}
+      />
     {/if}
 
     <Image
       src={url}
       {file}
+      {sizes}
       class="absolute-centered block h-24 rounded outline outline-0 outline-accent-400 transition-outline group-hover:outline-2"
       bind:isLoaded={thumbnailLoaded}
     />

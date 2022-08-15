@@ -62,8 +62,8 @@ export class ListWindowing<T>
 
   set list(val: T[]) {
     this.ready = false;
-    // Reset the window to prevent stale entries
-    this.listWindow = (this._list = val).map((data) => ({ data, offsetLeft: 0, offsetTop: 0, width: 0 }));
+    this._list = val;
+    this.listWindow = [];
   }
 
   constructor(options?: ListWindowingOptions<T>) {
@@ -73,6 +73,7 @@ export class ListWindowing<T>
 
       Object.assign(this, inputs);
 
+      this.listWindow = this.list.map((data) => ({ data, offsetLeft: 0, offsetTop: 0, width: 0 }));
       if (autoStart) this.start();
     }
   }
@@ -96,38 +97,41 @@ export class ListWindowing<T>
 
     this.emit("preupdate");
 
-    // Input calcs
+    // Input
+    const { list, columns } = this;
     const { clientHeight: windHeight, clientWidth: windWidth } = this.windowEl;
+
+    // Input calcs
     const rowHeight = typeof this.item === "number" ? this.item : this.item.getBoundingClientRect().height;
     const scroll = this.windowEl.scrollTop;
 
-    const pageSize = Math.ceil(windHeight / rowHeight) * this.columns;
-    const colWidth = windWidth / this.columns;
+    const pageSize = Math.ceil(windHeight / rowHeight) * columns;
+    const colWidth = windWidth / columns;
 
     // Skip update if nothing changed
     if (
-      this.lastList === this.list &&
+      this.lastList === list &&
       this.lastPageSize === pageSize &&
       this.lastColWidth === colWidth &&
       this.lastScroll === scroll
     )
       return; // Unchanged
-    this.lastList = this.list;
+    this.lastList = list;
     this.lastPageSize = pageSize;
     this.lastColWidth = colWidth;
     this.lastScroll = scroll;
 
     // Output calcs
     const offset = Math.floor(scroll / rowHeight);
-    const itemOffset = offset * this.columns;
+    const itemOffset = offset * columns;
 
     const topOffset = rowHeight * offset;
 
-    this.scrollHeight = rowHeight * (this.list.length / this.columns);
-    this.listWindow = this.list.slice(itemOffset, Math.ceil(itemOffset + pageSize + this.columns)).map((data, i) => ({
+    this.scrollHeight = rowHeight * (list.length / columns);
+    this.listWindow = this.list.slice(itemOffset, Math.ceil(itemOffset + pageSize + columns)).map((data, i) => ({
       data,
-      offsetTop: topOffset + Math.floor(i / this.columns) * rowHeight,
-      offsetLeft: colWidth * (i % this.columns),
+      offsetTop: topOffset + Math.floor(i / columns) * rowHeight,
+      offsetLeft: colWidth * (i % columns),
       width: colWidth,
     }));
 

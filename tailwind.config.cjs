@@ -1,10 +1,12 @@
 const colors = require("tailwindcss/colors");
+const breakpoints = require("./src/tailwind.breakpoints.config.json");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{html,js,svelte,ts}"],
   darkMode: "class",
   theme: {
+    screens: breakpoints,
     extend: {
       colors: {
         accent: {

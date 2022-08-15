@@ -32,18 +32,23 @@ My Svelte learning project that serves static files.
 
 - PNPM (optimally)
 - Node v16 to v18
-- FFmpeg for thumbnails of videos or unsupported images (optional; won't generate thumbnails for those)
+- FFmpeg for thumbnails of videos or unsupported images (optional; won't generate thumbnails for those without ffmpeg)
 
 ### Building
 
-1. `pnpm install`
-2. `pnpm build:db`
-3. `pnpm build`
+1. `pnpm install` to download dependencies
+2. `pnpm build:db` to prepare the cache database
+3. `pnpm build` to build the app
 
 ### Running
 
 1. Configure `.env`, use `.env.example` as a template
-2. `pnpm start` or `node .`
+2. Start with `pnpm start` or `node .`
+
+### Notes
+
+- You can freely purge the `cache/thumbnails` folder if you feel like it
+- You **shouldn't** delete `cache/cache.db` while the app is running and you have to run `pnpm build:db` if you delete it.
 
 ## Disclaimer
 

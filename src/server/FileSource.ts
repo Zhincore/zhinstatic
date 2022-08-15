@@ -40,7 +40,10 @@ export class FileSource implements UnderlyingByteSource {
       length: view.byteLength,
     });
 
-    if (bytesRead === 0) await this.cancel();
+    if (bytesRead === 0) {
+      await this.cancel();
+      this.controller?.close();
+    }
 
     req.respond(bytesRead);
   }
@@ -48,6 +51,5 @@ export class FileSource implements UnderlyingByteSource {
   async cancel() {
     this.clearTimeout();
     await this.file?.close();
-    this.controller?.close();
   }
 }

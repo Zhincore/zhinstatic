@@ -18,10 +18,11 @@ export const handle: Handle = async ({ event, resolve }) => {
       /// File streaming
       let path = getPath(event.params.path);
 
-      if (event.url.searchParams.has("width")) {
-        const width = parseInt(event.url.searchParams.get("width") ?? "");
+      const { searchParams } = event.url;
+      if (searchParams.has("size") || searchParams.has("format")) {
+        const size = parseInt(event.url.searchParams.get("size") ?? "");
         const format = event.url.searchParams.get("format") ?? "";
-        path = await getThumbnail(path, width, format as ThumbnailFormat);
+        path = await getThumbnail(path, size, format as ThumbnailFormat);
       }
 
       const response = await streamFileResponse(path);

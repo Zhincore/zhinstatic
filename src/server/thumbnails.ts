@@ -14,11 +14,11 @@ export type ThumbnailFormat = typeof serverConfig.thumbnails.formats[number];
 
 const limit = Limit(cpus().length);
 
-export async function getThumbnail(path: string, width: number, format: ThumbnailFormat) {
+export async function getThumbnail(path: string, size: number, format: ThumbnailFormat) {
   if (!serverConfig.thumbnails.formats.includes(format)) throw new HTTPError(400, "Unsupported output format");
-  if (!serverConfig.thumbnails.widths.includes(width)) throw new HTTPError(400, "Unsupported output width");
+  if (!serverConfig.thumbnails.widths.includes(size)) throw new HTTPError(400, "Unsupported output width");
 
-  const outputDir = Path.join(serverConfig.thumbnails.path, width + "");
+  const outputDir = Path.join(serverConfig.thumbnails.path, size + "");
   const outputPath = Path.join(outputDir, encodeURIComponent(path) + "." + format);
   if (existsSync(outputPath)) return outputPath;
 
@@ -51,7 +51,7 @@ export async function getThumbnail(path: string, width: number, format: Thumbnai
 
     await Sharp(inputPath, { animated, pages: format === "avif" ? 1 : -1 })
       .rotate()
-      .resize(width, width, { fit: "outside", withoutEnlargement: true })
+      .resize(size, size, { fit: "inside", withoutEnlargement: true })
       .toFormat(format, { mozjpeg: true })
       .toFile(outputPath);
 
