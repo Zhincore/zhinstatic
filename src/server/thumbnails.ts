@@ -19,7 +19,7 @@ export async function getThumbnail(path: string, size: number, format: Thumbnail
   if (!serverConfig.thumbnails.widths.includes(size)) throw new HTTPError(400, "Unsupported output width");
 
   const outputDir = Path.join(serverConfig.thumbnails.path, size + "");
-  const outputPath = Path.join(outputDir, encodeURIComponent(path) + "." + format);
+  const outputPath = Path.join(outputDir, encodeFilename(path) + "." + format);
   if (existsSync(outputPath)) return outputPath;
 
   const info = await getFile(path);
@@ -40,7 +40,7 @@ export async function getThumbnail(path: string, size: number, format: Thumbnail
 
     if (!sharpInSupport || !sharpOutSupport) {
       // Convert unsupported files first
-      inputPath = Path.join(serverConfig.thumbnails.path, encodeURIComponent(path) + ".png");
+      inputPath = Path.join(serverConfig.thumbnails.path, encodeFilename(path) + ".png");
       try {
         await ffmpegThumbnail(path, inputPath, Math.max(...serverConfig.thumbnails.widths));
       } catch (error) {
@@ -58,7 +58,11 @@ export async function getThumbnail(path: string, size: number, format: Thumbnail
     return outputPath;
   }).catch((err) => {
     // TODO: Error handling?
-    if (import.meta.env.DEV) console.error(err);
+    if (process.env.NODE_ENV != "development") console.error(err);
     return path;
   });
+}
+
+function encodeFilename(path: string) {
+  return path.replace(/\/|%/g, "-").replace(/-{2,}/g, "-").replace(/^-/, "");
 }

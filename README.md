@@ -37,13 +37,13 @@ My Svelte learning project that serves static files.
 ### Building
 
 1. `pnpm install` to download dependencies
-2. `pnpm build:db` to prepare the cache database
-3. `pnpm build` to build the app
+2. Configure `.env`, use `.env.example` as a template
+3. `pnpm build:db` to prepare the cache database
+4. `pnpm build` to build the app
 
 ### Running
 
-1. Configure `.env`, use `.env.example` as a template
-2. Start with `pnpm start` or `node .`
+1. Start with `pnpm start` or `node .`
 
 ### Notes
 
