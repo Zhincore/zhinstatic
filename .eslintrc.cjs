@@ -31,6 +31,7 @@ module.exports = {
   rules: {
     "import/order": ["warn", { groups: ["builtin", "external", "internal", "parent", "sibling"] }],
     "import/no-named-as-default": "off",
+    "import/no-named-as-default-member": "off",
     "import/no-unresolved": "off",
   },
 };

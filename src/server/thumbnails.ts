@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import Path from "node:path";
 import { cpus } from "node:os";
-import Sharp, { format as sharpFormat } from "sharp";
+import Sharp from "sharp";
 import type { FormatEnum } from "sharp";
 import Limit from "p-limit";
 import { HTTPError } from "$server/HTTPError";
@@ -29,8 +29,8 @@ export async function getThumbnail(path: string, size: number, format: Thumbnail
 
   // AVIF is regarded as HEIF in sharp
   const mapFormat = (fmt: string) => ({ avif: "heif" }[fmt] ?? fmt);
-  const sharpInSupport = sharpFormat[mapFormat(inFormat) as keyof FormatEnum]?.input.file;
-  const sharpOutSupport = sharpFormat[mapFormat(format) as keyof FormatEnum]?.output.file;
+  const sharpInSupport = Sharp.format[mapFormat(inFormat) as keyof FormatEnum]?.input.file;
+  const sharpOutSupport = Sharp.format[mapFormat(format) as keyof FormatEnum]?.output.file;
   const animated = serverConfig.thumbnails.animatedMimes.includes(info.mime);
 
   await fs.mkdir(outputDir, { recursive: true });
