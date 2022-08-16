@@ -5,7 +5,7 @@ import { cpus } from "node:os";
 import Sharp from "sharp";
 import type { FormatEnum } from "sharp";
 import Limit from "p-limit";
-import { HTTPError } from "$server/HTTPError";
+import { error } from "@sveltejs/kit";
 import { getFile } from "$server/files";
 import { serverConfig } from "./config";
 import { ffmpegThumbnail } from "./filesSubprocess";
@@ -15,8 +15,8 @@ export type ThumbnailFormat = typeof serverConfig.thumbnails.formats[number];
 const limit = Limit(cpus().length);
 
 export async function getThumbnail(path: string, size: number, format: ThumbnailFormat) {
-  if (!serverConfig.thumbnails.formats.includes(format)) throw new HTTPError(400, "Unsupported output format");
-  if (!serverConfig.thumbnails.widths.includes(size)) throw new HTTPError(400, "Unsupported output width");
+  if (!serverConfig.thumbnails.formats.includes(format)) throw error(400, "Unsupported output format");
+  if (!serverConfig.thumbnails.widths.includes(size)) throw error(400, "Unsupported output width");
 
   const outputDir = Path.join(serverConfig.thumbnails.path, size + "");
   const outputPath = Path.join(outputDir, encodeFilename(path) + "." + format);
@@ -24,7 +24,7 @@ export async function getThumbnail(path: string, size: number, format: Thumbnail
 
   const info = await getFile(path);
   const [type, inFormat] = info.mime?.split("/") ?? [];
-  if (!info.mime || !["video", "image"].includes(type)) throw new HTTPError(400, "Unsupported source format");
+  if (!info.mime || !["video", "image"].includes(type)) throw error(400, "Unsupported source format");
   if (serverConfig.thumbnails.keepMimes.includes(info.mime)) return path;
 
   // AVIF is regarded as HEIF in sharp
@@ -58,7 +58,7 @@ export async function getThumbnail(path: string, size: number, format: Thumbnail
     return outputPath;
   }).catch((err) => {
     // TODO: Error handling?
-    if (process.env.NODE_ENV != "development") console.error(err);
+    if (process.env.NODE_ENV != "production") console.error(err);
     return path;
   });
 }

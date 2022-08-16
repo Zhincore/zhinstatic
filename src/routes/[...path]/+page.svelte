@@ -1,13 +1,13 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
   import { navigating } from "$app/stores";
-  import type { NodeInfo } from "$server/files";
-  import Loader from "$comps/Loader.svelte";
+  import Loader from "$elements/Loader.svelte";
   import FileViewer from "./_file.svelte";
   import FolderViewer from "./_folder.svelte";
+  import type { PageData } from "./$types";
 
-  export let node: NodeInfo;
-  export let path: string;
+  export let data: PageData;
+  $: ({ path, node } = data);
 </script>
 
 <svelte:head>
@@ -15,7 +15,7 @@
 </svelte:head>
 
 {#key path}
-  <div class="absolute inset-0">
+  <div class="absolute inset-0 flex flex-col">
     {#if "files" in node}
       <FolderViewer {node} {path} />
     {:else}

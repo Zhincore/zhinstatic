@@ -4,9 +4,9 @@ import type { Stats } from "node:fs";
 import Path from "node:path";
 import { fileTypeFromFile } from "file-type";
 import { lookup as mimeLookup } from "mime-types";
+import { error } from "@sveltejs/kit";
 import type { File as FileRecord, PrismaPromise } from "@prisma/client";
 import { prisma } from "$server/prisma";
-import { HTTPError } from "$server/HTTPError";
 import { serverConfig } from "./config";
 import { FileSource } from "./FileSource";
 
@@ -16,8 +16,8 @@ type BaseNodeInfo = { name: string };
 export type FileInfo = BaseNodeInfo & {
   size: number;
   mtime: number;
-  mime: string | undefined;
-  ext: string | undefined;
+  mime: string | null;
+  ext: string | null;
 };
 export type FolderInfo = BaseNodeInfo & {
   files: NodeInfo[];
@@ -29,8 +29,8 @@ const deferedCache: FileRecord[] = [];
 
 export function getPath(paramPath: string) {
   const path = Path.join(ROOT_PATH, paramPath);
-  if (!path.startsWith(ROOT_PATH)) throw new HTTPError(400, "Invalid path");
-  if (!fs.existsSync(path)) throw new HTTPError(404, "File not found");
+  if (!path.startsWith(ROOT_PATH)) throw error(400, "Invalid path");
+  if (!fs.existsSync(path)) throw error(404, "File not found");
   return path;
 }
 
@@ -79,15 +79,15 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
     name: Path.basename(path),
     size: stat.size,
     mtime: stat.mtimeMs,
-    mime: type.mime ?? undefined,
-    ext: type.ext ?? undefined,
+    mime: type.mime ?? null,
+    ext: type.ext ?? null,
   };
 }
 
 export async function streamFileResponse(path: string, info?: FileInfo) {
   if (!info) {
     const stat = await fs.promises.stat(path);
-    if (!stat.isFile()) throw new HTTPError(400, "Cannot stream a folder");
+    if (!stat.isFile()) throw error(400, "Cannot stream a folder");
 
     info = await getFile(path, stat);
   }

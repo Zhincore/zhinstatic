@@ -10,9 +10,9 @@
   import { sortFileNodes } from "$lib/sorting";
   import { ListWindowing } from "$lib/ListWindowing";
   import scrollRestore from "$lib/scrollRestore";
-  import FileIcon from "$lib/components/FileIcon.svelte/FileIcon.svelte";
-  import type { Sizes } from "$comps/Image.svelte";
-  import FolderTools from "$comps/FolderTools.svelte";
+  import FileIcon from "$lib/components/elements/FilePreview.svelte";
+  import type { Sizes } from "$elements/Image.svelte";
+  // import FolderTools from "$comps/FolderTools.svelte";
 
   export let node: FolderInfo;
   export let path: string;
@@ -61,7 +61,7 @@
   const sizes: Sizes = { "": "192px" };
 </script>
 
-<FolderTools bind:search />
+<!-- <FolderTools bind:search /> -->
 
 <div class="relative h-full w-full overflow-y-auto" bind:this={windowEl}>
   <ul
@@ -80,7 +80,7 @@
           class:absolute={$windowing.ready}
           style={$windowing.ready ? `top: ${pos.offsetTop}px; left: ${pos.offsetLeft}px; width: ${pos.width}px` : ""}
         >
-          <a href={url} class={itemClass} transition:navFade={i}>
+          <a href={url} class={itemClass} transition:navFade={i} title={file.name}>
             <FileIcon node={file} {url} {sizes} class="" />
             <div class="mt-2 max-h-12 max-w-full overflow-hidden text-ellipsis text-center">{file.name}</div>
           </a>

@@ -31,6 +31,12 @@ module.exports = {
           "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, text-shadow",
         outline: "outline",
       },
+      minWidth: {
+        "1/2": "50%",
+      },
+      maxWidth: {
+        screen: "100vw",
+      },
     },
   },
   plugins: [],

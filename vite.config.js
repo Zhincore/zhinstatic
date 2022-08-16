@@ -9,7 +9,8 @@ const config = {
   resolve: {
     alias: {
       $stores: resolve("./src/lib/stores"),
-      $comps: resolve("./src/lib/components"),
+      $elements: resolve("./src/lib/components/elements"),
+      $parts: resolve("./src/lib/components/parts"),
       $server: resolve("./src/server"),
     },
   },

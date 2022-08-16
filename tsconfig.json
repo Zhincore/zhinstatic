@@ -5,7 +5,8 @@
       "$lib": ["src/lib"],
       "$lib/*": ["src/lib/*"],
       "$stores/*": ["src/lib/stores/*"],
-      "$comps/*": ["src/lib/components/*"],
+      "$parts/*": ["src/lib/components/parts/*"],
+      "$elements/*": ["src/lib/components/elements/*"],
       "$server/*": ["src/server/*"]
     },
     "allowJs": true,

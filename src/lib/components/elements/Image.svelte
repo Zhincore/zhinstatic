@@ -30,7 +30,7 @@
 
   const loaded = () => (isLoaded = true);
   const error = () => (isError = true);
-  const getSrc = (size: number, format: string) => `${src}?size=${size}&format=${format}`;
+  const getSrc = (size: number, format: string) => `${src}?file&size=${size}&format=${format}`;
   const getSrcSet = (format: string) =>
     config.thumbnails.widths.map((width) => `${getSrc(width, format)} ${width}w`).join(", ");
   const htmlSizes = Object.entries(sizes)
