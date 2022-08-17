@@ -83,4 +83,8 @@ const archiveTypes = [
 
 const sourceCodeTypes = ["text/html", "text/css", "text/javascript"];
 
-const readableDataTypes = ["application/json", "application/xml"];
+const readableDataTypes = [
+  "application/json",
+  "application/xml",
+  "application/javascript", // legacy
+];

@@ -2,54 +2,54 @@ import type { ReadableByteStreamController, ReadableStreamBYOBRequest, Underlyin
 import { open } from "node:fs/promises";
 import type { FileHandle } from "node:fs/promises";
 
+export interface FileSourceOpts {
+  start?: number;
+  length?: number;
+}
+
 export class FileSource implements UnderlyingByteSource {
   type = "bytes" as const;
   autoAllocateChunkSize = 1024;
 
-  private timeout?: NodeJS.Timeout;
   private file?: FileHandle;
   private controller?: ReadableByteStreamController;
+  private position = 0;
+  private length = Infinity;
 
-  constructor(readonly path: string) {}
-
-  private clearTimeout() {
-    if (this.timeout) clearTimeout(this.timeout);
-  }
-
-  private resetTimeout() {
-    this.clearTimeout();
-    this.timeout = setTimeout(async () => {
-      await this.cancel();
-    }, 15000).unref();
+  constructor(readonly path: string, opts: FileSourceOpts = {}) {
+    if (opts.start) this.position = opts.start;
+    if (opts.length) this.length = opts.length + 1;
   }
 
   async start(controller: ReadableByteStreamController) {
     this.file = await open(this.path);
+
     this.controller = controller;
-    this.resetTimeout();
   }
 
   async pull(controller: ReadableByteStreamController) {
-    const req = controller.byobRequest as typeof ReadableStreamBYOBRequest;
-    if (!this.file || !this.controller) return;
-    this.resetTimeout();
-    const view = req?.view;
+    const req = controller.byobRequest as unknown as ReadableStreamBYOBRequest | null;
+    if (!req || !this.file || !this.controller) return;
+
+    const view = req.view;
     const { bytesRead } = await this.file.read({
       buffer: view,
       offset: view.byteOffset,
-      length: view.byteLength,
+      length: Math.min(view.byteLength, this.length),
+      position: this.position,
     });
+    this.length -= bytesRead;
+    this.position += bytesRead;
 
-    if (bytesRead === 0) {
+    if (bytesRead === 0 || this.length <= 0) {
       await this.cancel();
-      this.controller?.close();
+      this.controller.close();
     }
 
     req.respond(bytesRead);
   }
 
   async cancel() {
-    this.clearTimeout();
     await this.file?.close();
   }
 }

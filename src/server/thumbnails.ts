@@ -7,14 +7,15 @@ import type { FormatEnum } from "sharp";
 import Limit from "p-limit";
 import { error } from "@sveltejs/kit";
 import { getFile } from "$server/files";
+import type { FileInfo } from "$server/files";
 import { serverConfig } from "./config";
 import { ffmpegThumbnail } from "./filesSubprocess";
 
 export type ThumbnailFormat = typeof serverConfig.thumbnails.formats[number];
 
-const limit = Limit(cpus().length);
+const limit = Limit(Math.max(1, Math.floor(cpus().length * (2 / 3))));
 
-export async function getThumbnail(path: string, size: number, format: ThumbnailFormat) {
+export async function getThumbnail(path: string, size: number, format: ThumbnailFormat, info?: FileInfo) {
   if (!serverConfig.thumbnails.formats.includes(format)) throw error(400, "Unsupported output format");
   if (!serverConfig.thumbnails.widths.includes(size)) throw error(400, "Unsupported output width");
 
@@ -22,7 +23,7 @@ export async function getThumbnail(path: string, size: number, format: Thumbnail
   const outputPath = Path.join(outputDir, encodeFilename(path) + "." + format);
   if (existsSync(outputPath)) return outputPath;
 
-  const info = await getFile(path);
+  if (!info) info = await getFile(path);
   const [type, inFormat] = info.mime?.split("/") ?? [];
   if (!info.mime || !["video", "image"].includes(type)) throw error(400, "Unsupported source format");
   if (serverConfig.thumbnails.keepMimes.includes(info.mime)) return path;

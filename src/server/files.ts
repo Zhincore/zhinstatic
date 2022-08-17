@@ -84,7 +84,7 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
   };
 }
 
-export async function streamFileResponse(path: string, info?: FileInfo) {
+export async function streamFileResponse(path: string, info?: FileInfo, start = 0, end?: number) {
   if (!info) {
     const stat = await fs.promises.stat(path);
     if (!stat.isFile()) throw error(400, "Cannot stream a folder");
@@ -92,23 +92,28 @@ export async function streamFileResponse(path: string, info?: FileInfo) {
     info = await getFile(path, stat);
   }
 
-  const webstream = new ReadableStream(new FileSource(path));
+  if (start >= info.size || (end && (start >= end || end >= info.size))) throw error(416);
 
-  // finished(stream, (error) => {
-  //   // Ignore dumb errors from client disconnecting
-  //   if (
-  //     !error ||
-  //     ["EPIPE", "AbortError", "ECONNRESET", "ERR_STREAM_DESTROYED", "ERR_STREAM_PREMATURE_CLOSE"].includes(error.name)
-  //   )
-  //     return;
-  //   throw error;
-  // });
+  if (!end) end = info.size - 1;
+  const length = end - start + 1;
+  const partial = length !== info.size;
 
+  const headers = new Headers();
+  headers.append("Content-Type", info.mime ?? "application/octet-stream");
+  headers.append("Content-Length", length + "");
+  headers.append("Accept-Ranges", "bytes");
+  if (partial) {
+    headers.append("Content-Range", `bytes ${start}-${end}/${info.size}`);
+  }
+
+  const fileSource = new FileSource(path, { start, length });
+  const [webstream, fallback] = new ReadableStream(fileSource).tee();
+  // Piping the clone of the stream nowhere to prevent the stream from getting garbage collected without closing the underlying file
+  // I used Timeout before but it closed video streams even when resetted on each pull :/
+  fallback.pipeTo(new WritableStream({ write: () => void 0 }));
   return new Response(webstream, {
-    headers: {
-      "Content-Type": info.mime ?? "application/octet-stream",
-      "Content-Length": info.size + "",
-    },
+    status: partial ? 206 : 200,
+    headers,
   });
 }
 

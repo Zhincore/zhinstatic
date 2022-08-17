@@ -9,16 +9,15 @@
   import { getTypeFromMime } from "$lib/filetype";
   import type { Type } from "$lib/filetype";
 
-  const getFileTools = () => import("./FileTools.svelte").then((m) => m.default);
-
-  $: nodeInfo = $page.data.node as NodeInfo;
+  $: nodeInfo = $page.data.node as NodeInfo | undefined;
   let nodeType: Type;
-  $: nodeType = "mime" in nodeInfo ? getTypeFromMime(nodeInfo.mime) : "folder";
+  $: nodeType = nodeInfo && "mime" in nodeInfo ? getTypeFromMime(nodeInfo.mime) : "folder";
 
   $: isRoot = $page.params.path === "";
+  $: fileToolsPromise = nodeType !== "folder" && import("./FileTools.svelte").then((m) => m.default);
 </script>
 
-<div class="relative flex items-center px-1 lg:px-4 xl:px-8">
+<div class="relative flex items-center px-1 shadow-lg lg:px-4 xl:px-8">
   <a href="." class="link svg inline-block p-3" class:opacity-0={isRoot} class:pointer-events-none={isRoot}>
     <Icon data={faArrowUp} scale={2} />
   </a>
@@ -37,8 +36,8 @@
 
   <div class="invisible w-0 flex-1">Spacer</div>
 
-  {#if "size" in nodeInfo}
-    {#await getFileTools() then FileTools}
+  {#if fileToolsPromise}
+    {#await fileToolsPromise then FileTools}
       <FileTools node={nodeInfo} />
     {/await}
   {/if}

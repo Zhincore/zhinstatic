@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import { session } from "$app/stores";
+import { page } from "$app/stores";
 import { browser } from "$app/env";
 import { togglable } from "$lib/togglable";
 import type { Togglable } from "$lib/togglable";
@@ -7,7 +7,7 @@ import { config } from "$lib/config";
 
 function createDarkmodeStore() {
   let initial: boolean | undefined = config.darkmodeDefault;
-  session.subscribe((ses) => (initial = ses.darkmode))();
+  page.subscribe((ses) => (initial = ses.data.darkmode))();
 
   if (!browser) return togglable(initial);
 
