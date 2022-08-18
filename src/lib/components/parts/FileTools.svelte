@@ -24,7 +24,7 @@
 </script>
 
 <a transition:fade class="link mx-2 p-2" href={src} download={nodeInfo.name} title="Download file">
-  <Icon data={faDownload} scale={2} />
+  <Icon data={faDownload} scale={1.5} />
 </a>
 
 <div transition:fade use:onClickOutside={() => (infoShown = false)} class="relative">
@@ -34,7 +34,7 @@
     on:click={() => (infoShown = !infoShown)}
     title={infoShown ? "Hide file info" : "Show file info"}
   >
-    <Icon data={infoShown ? faCircleXmark : faCircleInfo} scale={2} />
+    <Icon data={infoShown ? faCircleXmark : faCircleInfo} scale={1.5} />
   </button>
 
   {#if infoShown}

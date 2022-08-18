@@ -17,8 +17,8 @@
   export let keep = !file.mime || config.thumbnails.keepMimes.includes(file.mime);
   export let sizes: Sizes = { "": "100vw" };
   export let alt = "";
-  let classes = "";
-  export { classes as class };
+  let className = "";
+  export { className as class };
 
   export let isLoaded = false;
   export let isError = false;
@@ -44,7 +44,7 @@
     src,
     loading,
     decoding,
-    class: `min-h-8 max-h-full object-contain transition-opacity ${classes}`,
+    class: `min-h-8 max-h-full object-contain transition-opacity ${className}`,
   };
 </script>
 

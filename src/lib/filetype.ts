@@ -81,10 +81,18 @@ const archiveTypes = [
   "application/x-debian-package",
 ];
 
-const sourceCodeTypes = ["text/html", "text/css", "text/javascript"];
+const sourceCodeTypes = [
+  "text/html",
+  "text/css",
+  "text/javascript",
+  "text/yaml",
+  "text/x.typescript",
+  "text/x.svelte+xml",
+];
 
 const readableDataTypes = [
   "application/json",
   "application/xml",
   "application/javascript", // legacy
+  "application/node",
 ];

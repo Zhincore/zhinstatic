@@ -7,8 +7,8 @@
   export let type: Type;
   export let scale = 4;
   export let hide = false;
-  let clazz = "";
-  export { clazz as class };
+  let className = "";
+  export { className as class };
 
   const iconsForTypes: Record<Exclude<Type, undefined>, () => Promise<IconDefinition>> = {
     folder: () => import("@fortawesome/free-solid-svg-icons/faFolder").then((m) => m.faFolder),
@@ -27,7 +27,7 @@
 </script>
 
 {#await iconData}
-  <Icon data={faFile} {scale} class="m-4 transition {hide ? 'opacity-0' : ''} {clazz}" />
+  <Icon data={faFile} {scale} class="transition {hide ? 'opacity-0' : ''} {className}" />
 {:then icon}
-  <Icon data={icon} {scale} class="m-4 transition {hide ? 'opacity-0' : ''} {clazz}" />
+  <Icon data={icon} {scale} class="transition {hide ? 'opacity-0' : ''} {className}" />
 {/await}

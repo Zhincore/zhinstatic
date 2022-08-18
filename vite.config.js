@@ -6,6 +6,9 @@ const config = {
   envPrefix: "ZSTATIC_",
   plugins: [sveltekit()],
   clearScreen: false,
+  optimizeDeps: {
+    include: ["highlight.js", "highlight.js/lib/core"],
+  },
   resolve: {
     alias: {
       $stores: resolve("./src/lib/stores"),

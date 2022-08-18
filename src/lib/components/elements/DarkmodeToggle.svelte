@@ -9,7 +9,7 @@
 </script>
 
 <button class="link svg mx-2 inline-block p-2" on:click={() => darkmode.toggle()}>
-  <svg viewBox="0 0 256 256" width="32" xmlns="http://www.w3.org/2000/svg" class="fill-current transition-colors">
+  <svg viewBox="0 0 256 256" width="28" xmlns="http://www.w3.org/2000/svg" class="fill-current transition-colors">
     <def>
       <g id="rays">
         <rect y="120" x="8" width="48" height="16" rx="8" ry="8" />

@@ -17,12 +17,12 @@
   $: fileToolsPromise = nodeType !== "folder" && import("./FileTools.svelte").then((m) => m.default);
 </script>
 
-<div class="relative flex items-center px-1 shadow-lg lg:px-4 xl:px-8">
+<div class="relative flex items-center px-1 py-1 shadow-lg lg:px-4 xl:px-6">
   <a href="." class="link svg inline-block p-3" class:opacity-0={isRoot} class:pointer-events-none={isRoot}>
-    <Icon data={faArrowUp} scale={2} />
+    <Icon data={faArrowUp} scale={1.6} />
   </a>
 
-  <FileIcon type={nodeType} scale={1.5} class="w-8 flex-shrink-0" />
+  <FileIcon type={nodeType} scale={1} class="relative z-10 ml-2 -mr-1 w-4 flex-shrink-0" />
 
   <div
     class="before:overlay relative hidden overflow-hidden pr-2 text-right before:w-4 before:bg-gradient-to-r before:from-zinc-100 before:to-transparent dark:before:from-zinc-900 sm:block"

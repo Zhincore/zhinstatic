@@ -63,7 +63,8 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
   const stat = aStat ?? (await fs.promises.stat(path));
 
   const ext = Path.extname(path);
-  const type: { ext: string | null; mime: string | null } = { ext, mime: mimeLookup(ext) || null };
+  const override: string | undefined = (serverConfig.mimeOverride as any)[ext];
+  const type: { ext: string | null; mime: string | null } = { ext, mime: (override ?? mimeLookup(ext)) || null };
 
   if (!type.mime || serverConfig.checkMagicFor.includes(type.mime) || serverConfig.checkMagicFor.includes(ext)) {
     let magic: { ext: string | null; mime: string | null } | null = await prisma.file.findUnique({ where: { path } });

@@ -6,6 +6,16 @@
   body {
     height: 100%;
   }
+
+  pre[data-language] {
+    white-space: pre-wrap;
+
+    &,
+    & code.hljs {
+      height: 100%;
+      width: 100%;
+    }
+  }
 }
 
 @layer components {

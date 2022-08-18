@@ -11,8 +11,8 @@
   export let node: NodeInfo;
   export let url: string;
   export let sizes: Sizes | undefined = undefined;
-  let classes = "";
-  export { classes as class };
+  let className = "";
+  export { className as class };
 
   let thumbnailLoaded = false;
 
@@ -20,8 +20,8 @@
   const type = "mime" in node ? getTypeFromMime(node.mime) : "folder";
 </script>
 
-<div class="relative h-24 w-full text-center {classes}">
-  <FileIcon {type} hide={thumbnailLoaded} />
+<div class="relative h-24 w-full text-center {className}">
+  <FileIcon {type} hide={thumbnailLoaded} class="m-4" />
 
   {#if type === "image" || type === "video"}
     {#if type === "video" && thumbnailLoaded}
