@@ -23,7 +23,7 @@
     (type === "code" || type === "text") && import("$lib/components/parts/Code.svelte").then((m) => m.default);
 </script>
 
-<div class="flex h-full items-center justify-center pb-2" transition:fade={{ duration: 200 }}>
+<div class="flex h-full items-center justify-center" transition:fade={{ duration: 200 }}>
   {#if !isDone}
     <div class="absolute-centered z-10 transition-opacity" transition:fade><Loader /></div>
   {/if}

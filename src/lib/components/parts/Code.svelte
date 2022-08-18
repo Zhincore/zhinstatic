@@ -16,7 +16,7 @@
   onMount(async () => {
     const response = await fetch(src);
     if (response.ok) {
-      type = response.headers.get("Content-Type") ?? "text/plain";
+      type = (response.headers.get("Content-Type") ?? "text/plain").split(";")[0];
       [code, language] = await Promise.all([
         response.text(),
         (
