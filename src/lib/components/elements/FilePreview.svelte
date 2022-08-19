@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
-  import { faCaretRight } from "@fortawesome/free-solid-svg-icons/faCaretRight";
+  import { faPlay } from "@fortawesome/free-solid-svg-icons/faPlay";
   import { Icon } from "svelte-awesome";
   import type { NodeInfo, FileInfo } from "$server/files";
   import Image from "$elements/Image.svelte";
@@ -26,7 +26,7 @@
   {#if type === "image" || type === "video"}
     {#if type === "video" && thumbnailLoaded}
       <div transition:fade class="absolute-centered z-10 opacity-80 drop-shadow transition">
-        <Icon data={faCaretRight} scale={3} />
+        <Icon data={faPlay} scale={3} />
       </div>
     {/if}
 

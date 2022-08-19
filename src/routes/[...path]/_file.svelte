@@ -11,6 +11,7 @@
   import Loader from "$elements/Loader.svelte";
   import FileIcon from "$elements/FileIcon.svelte";
   import Image from "$elements/Image.svelte";
+  import AudioPlayer from "$lib/components/parts/AudioPlayer.svelte";
 
   export let node: FileInfo;
   export let path: string;
@@ -64,7 +65,7 @@
       file={node}
       {src}
       alt=""
-      class="max-h-full min-w-1/2 max-w-full transition-opacity"
+      class="max-h-full min-w-full max-w-full transition-opacity md:min-w-1/2"
       bind:isError
       bind:isLoaded
     />
@@ -75,19 +76,12 @@
       autoplay
       controls
       loop
-      class="max-h-full min-w-1/2 max-w-full"
+      class="max-h-full min-w-full max-w-full md:min-w-1/2"
       on:canplay={() => (isLoaded = true)}
       on:error={() => (isError = true)}
     />
   {:else if type === "audio"}
-    <audio
-      {src}
-      autoplay
-      controls
-      class="min-w-1/2 max-w-full"
-      on:canplay={() => (isLoaded = true)}
-      on:error={() => (isError = true)}
-    />
+    <AudioPlayer {src} autoplay class="min-w-full md:min-w-1/2" bind:isLoaded bind:isError />
   {:else if node.mime === "text/html"}
     <iframe loading="async" {src} title={node.name} class="h-full w-full" on:load={() => (isLoaded = true)} />
   {:else if type === "code" || type === "text"}

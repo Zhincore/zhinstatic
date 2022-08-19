@@ -1,5 +1,6 @@
 import type { FolderInfo } from "$server/files";
 import { sortFolder } from "./folderSorting";
+import { fetchData } from "./utils";
 
 let folderCache: FolderInfo;
 let folderCached = "";
@@ -27,10 +28,10 @@ export async function fetchFolder(path: string) {
   const dirpath = path.split("/").slice(0, -1).join("/");
 
   if (folderCached !== dirpath) {
-    const response = await fetch(dirpath, { headers: { Accept: "application/json" } });
-    if (!response.ok) return;
+    const data = await fetchData(dirpath);
+    if (!data) return;
     folderCached = dirpath;
-    folderCache = (await response.json()).node;
+    folderCache = data.node;
   }
 
   return folderCache;
