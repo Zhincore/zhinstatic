@@ -59,8 +59,6 @@ dependencies:
   cookie: 0.5.0
   dotenv: 16.0.1
   file-type: 17.1.6
-  format-duration: 2.0.0
-  js-cookie: 3.0.1
 
 devDependencies:
   '@celeranis/node-current-types': 0.2.0
@@ -90,8 +88,10 @@ devDependencies:
   eslint-plugin-svelte3: 4.0.0_laaqauvsmoyypsiqkozwyi2fn4
   eventemitter3: 4.0.7
   exit-hook: 3.0.0
+  format-duration: 2.0.0
   fuse.js: 6.6.2
   highlight.js: 11.6.0
+  js-cookie: 3.0.1
   mime-types: 2.1.35
   p-limit: 4.0.0
   postcss: 8.4.16
@@ -1673,7 +1673,7 @@ packages:
 
   /format-duration/2.0.0:
     resolution: {integrity: sha512-ARqJ9qXm71pw3SGAY7bibf8lRLvltOXLjWjzzR3UrUjHu1zdeYpA/Z+u+ltdhrfRa440OjEsHNzdmuZViqqQWQ==}
-    dev: false
+    dev: true
 
   /formdata-polyfill/4.0.10:
     resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
@@ -2033,7 +2033,7 @@ packages:
   /js-cookie/3.0.1:
     resolution: {integrity: sha512-+0rgsUXZu4ncpPxRL+lNEptWMOWl9etvPHc/koSRp6MPwpRYAhmk0dUG00J4bxVV3r9uUzfo24wW0knS07SKSw==}
     engines: {node: '>=12'}
-    dev: false
+    dev: true
 
   /js-yaml/4.1.0:
     resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}

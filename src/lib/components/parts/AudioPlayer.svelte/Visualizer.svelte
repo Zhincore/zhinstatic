@@ -18,6 +18,7 @@
   let canvas: HTMLCanvasElement;
   let ready = true;
   $: ctx = canvas?.getContext("2d");
+  $: styles = canvas && window && window.getComputedStyle(canvas);
 
   onMount(() => {
     let frame: number;
@@ -42,7 +43,7 @@
         }
         ctx.lineJoin = "round";
         ctx.lineWidth = 2;
-        ctx.strokeStyle = "currentColor";
+        ctx.strokeStyle = styles.color;
         ctx.stroke();
       } else {
         analyser.getByteFrequencyData(data);
@@ -50,11 +51,11 @@
 
         for (let i = 0; i < binCount; i++) {
           const x = width * i;
-          const height = (data[i] / 256) ** 2 * canvas.height;
+          const height = (data[i] / 256) ** 3 * canvas.height;
 
           ctx.beginPath();
           ctx.rect(x, canvas.height, width, -height);
-          ctx.fillStyle = "currentColor";
+          ctx.fillStyle = styles.color;
           ctx.fill();
         }
       }
