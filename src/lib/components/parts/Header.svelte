@@ -9,16 +9,30 @@
   import { getTypeFromMime } from "$lib/filetype";
   import type { Type } from "$lib/filetype";
 
-  $: nodeInfo = $page.data.node as NodeInfo | undefined;
+  let backButton: HTMLElement;
   let nodeType: Type;
+
+  const onkeydown = (ev: KeyboardEvent) => {
+    if (ev.key === "Escape" && backButton) backButton.click();
+  };
+
+  $: nodeInfo = $page.data.node as NodeInfo | undefined;
   $: nodeType = nodeInfo && "mime" in nodeInfo ? getTypeFromMime(nodeInfo.mime) : "folder";
 
   $: isRoot = $page.params.path === "";
   $: fileToolsPromise = nodeType !== "folder" && import("./FileTools.svelte").then((m) => m.default);
 </script>
 
+<svelte:window on:keydown={onkeydown} />
+
 <div class="relative flex items-center px-1 py-1 shadow-lg lg:px-4 xl:px-6">
-  <a href="." class="link svg inline-block p-3" class:opacity-0={isRoot} class:pointer-events-none={isRoot}>
+  <a
+    href="."
+    class="link svg inline-block p-3"
+    class:opacity-0={isRoot}
+    class:pointer-events-none={isRoot}
+    bind:this={backButton}
+  >
     <Icon data={faArrowUp} scale={1.6} />
   </a>
 

@@ -7,7 +7,7 @@
   import { navigating } from "$app/stores";
   import type { FolderInfo, NodeInfo } from "$server/files";
   import { normalizePath } from "$lib/utils";
-  import { sortFileNodes } from "$lib/sorting";
+  import { sortFolder } from "$lib/folderSorting";
   import { ListWindowing } from "$lib/ListWindowing";
   import scrollRestore from "$lib/scrollRestore";
   import FileIcon from "$lib/components/elements/FilePreview.svelte";
@@ -17,7 +17,7 @@
   export let node: FolderInfo;
   export let path: string;
 
-  let sorted = sortFileNodes(node.files);
+  let sorted = sortFolder(node.files);
 
   let windowEl: HTMLElement;
   let itemEl: HTMLElement;
@@ -49,7 +49,7 @@
     import("fuse.js").then(({ default: Fuse }) => (fuse = new Fuse(sorted, { keys: ["name", "mime"] })));
 
   $: if (fuse) fuse.setCollection(node.files);
-  $: sortedList = search && fuse ? fuse.search(search).map((item) => item.item) : sortFileNodes(node.files);
+  $: sortedList = search && fuse ? fuse.search(search).map((item) => item.item) : sortFolder(node.files);
 
   $: windowing.list = sortedList;
   $: windowing.windowEl = windowEl;

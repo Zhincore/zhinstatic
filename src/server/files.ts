@@ -11,6 +11,7 @@ import { serverConfig } from "./config";
 import { FileSource } from "./FileSource";
 
 const ROOT_PATH = Path.resolve(process.env.ZSTATIC_PATH || import.meta.env.ZSTATIC_PATH);
+const FILTER = (filename: string) => !filename.startsWith(".");
 
 type BaseNodeInfo = { name: string };
 export type FileInfo = BaseNodeInfo & {
@@ -43,6 +44,8 @@ export async function getNodeInfo(path: string): Promise<NodeInfo | undefined> {
 
     const dir = await fs.promises.opendir(path);
     for await (const dirent of dir) {
+      if (!FILTER(dirent.name)) continue;
+
       const _path = Path.join(path, dirent.name);
       if (dirent.isDirectory()) {
         files.push(Promise.resolve({ name: Path.basename(_path), files: [] }));
@@ -56,7 +59,7 @@ export async function getNodeInfo(path: string): Promise<NodeInfo | undefined> {
   }
 
   await saveDeferedCache();
-  return await getFile(path);
+  return await getFile(path, stat);
 }
 
 export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
