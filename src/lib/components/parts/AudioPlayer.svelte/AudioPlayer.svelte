@@ -142,7 +142,7 @@
 
     <div class="mx-2">{formatDuration(duration * 1000)}</div>
 
-    <button class="ml-2 inline-block w-10 p-2 transition" class:text-accent-600={!loop} on:click={() => (loop = !loop)}>
+    <button class="ml-2 inline-block w-10 p-2 transition" class:text-accent-600={loop} on:click={() => (loop = !loop)}>
       <Icon data={faRepeat} scale={1.25} />
     </button>
 
