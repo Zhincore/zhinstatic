@@ -8,10 +8,10 @@
   const random = Math.random() * 100 + "";
 </script>
 
-<fieldset {label} class="inline-block overflow-hidden rounded-xl bg-zinc-700 {className}">
+<fieldset {label} class="inline-block overflow-hidden rounded-xl bg-zinc-300 dark:bg-zinc-700 {className}">
   {#each options as value, i (value)}
     <label
-      class="inline-block cursor-pointer px-3 py-1 transition {value === chosen ? 'bg-zinc-600' : ''}"
+      class="inline-block cursor-pointer px-3 py-1 transition {value === chosen ? 'bg-zinc-400 dark:bg-zinc-600' : ''}"
       for={`radio${random}_${i}`}
     >
       <slot {value}>{value}</slot>

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { fade } from "svelte/transition";
   import { Icon } from "svelte-awesome";
   import { faArrowUp } from "@fortawesome/free-solid-svg-icons/faArrowUp";
   import { page } from "$app/stores";
@@ -8,6 +7,7 @@
   import type { NodeInfo } from "$server/files";
   import { getTypeFromMime } from "$lib/filetype";
   import type { Type } from "$lib/filetype";
+  import Breadcrumb from "./Breadcrumb.svelte";
 
   let backButton: HTMLElement;
   let nodeType: Type;
@@ -41,11 +41,7 @@
   <div
     class="before:overlay relative hidden overflow-hidden pr-2 text-right before:w-4 before:bg-gradient-to-r before:from-zinc-100 before:to-transparent dark:before:from-zinc-900 sm:block"
   >
-    <div class="-ml-[100%] whitespace-nowrap pl-4" aria-label={"/" + $page.params.path}>
-      {#each $page.params.path.replace(/\/$/, "").split("/") as segment}
-        <span aria-hidden="true" transition:fade>/{segment}</span>
-      {/each}
-    </div>
+    <Breadcrumb />
   </div>
 
   <div class="invisible w-0 flex-1">Spacer</div>

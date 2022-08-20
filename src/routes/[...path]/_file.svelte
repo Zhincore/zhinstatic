@@ -11,7 +11,6 @@
   import Loader from "$elements/Loader.svelte";
   import FileIcon from "$elements/FileIcon.svelte";
   import Image from "$elements/Image.svelte";
-  import AudioPlayer from "$lib/components/parts/AudioPlayer.svelte";
 
   export let node: FileInfo;
   export let path: string;
@@ -81,7 +80,9 @@
       on:error={() => (isError = true)}
     />
   {:else if type === "audio"}
-    <AudioPlayer {src} autoplay class="min-w-full md:min-w-1/2" bind:isLoaded bind:isError />
+    {#await import("$lib/components/parts/AudioPlayer.svelte") then { default: AudioPlayer }}
+      <AudioPlayer {src} autoplay class="min-w-full md:min-w-1/2" bind:isLoaded bind:isError />
+    {/await}
   {:else if node.mime === "text/html"}
     <iframe loading="async" {src} title={node.name} class="h-full w-full" on:load={() => (isLoaded = true)} />
   {:else if type === "code" || type === "text"}
@@ -106,7 +107,7 @@
       <a
         href={`${dirpath}/${neighbour}`}
         title={i ? "Next file" : "Previous file"}
-        class="absolute top-1/2 -translate-y-1/2 transform p-4 opacity-50 transition hover:opacity-90"
+        class="absolute bottom-0 p-4 opacity-50 transition hover:opacity-90"
         class:left-0={!i}
         class:right-0={i}
         bind:this={neighbourButtons[i]}

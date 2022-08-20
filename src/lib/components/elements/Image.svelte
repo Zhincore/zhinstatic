@@ -16,7 +16,6 @@
   export let decoding: "sync" | "async" | "auto" = "async";
   export let keep = !file.mime || config.thumbnails.keepMimes.includes(file.mime);
   export let sizes: Sizes = { "": "100vw" };
-  export let size: number | undefined = undefined;
   export let alt = "";
   let className = "";
   export { className as class };

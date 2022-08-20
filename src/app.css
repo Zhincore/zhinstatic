@@ -20,20 +20,25 @@
 
 @layer components {
   .link {
-    @apply transition hover:text-accent-500 dark:hover:text-accent-300;
+    @apply transition;
 
-    &:hover {
+    &:hover,
+    &.hover {
+      @apply text-accent-500 dark:text-accent-300;
       text-shadow: 0 0 0.2em theme("colors.accent.800" / 50%);
     }
-    &.svg:hover {
+    &.svg:hover,
+    &.svg.hover {
       filter: drop-shadow(0 0 0.2em theme("colors.accent.700" / 50%));
     }
 
     html.dark {
-      &:hover {
+      &:hover,
+      &.hover {
         text-shadow: 0 0 0.2em theme("colors.accent.700" / 25%);
       }
-      &.svg:hover {
+      &.svg:hover,
+      &.svg.hover {
         filter: drop-shadow(0 0 0.2em theme("colors.accent.500" / 50%));
       }
     }
