@@ -53,7 +53,7 @@ export async function getThumbnail(path: string, size: number, format: Thumbnail
     await Sharp(inputPath, { animated, pages: format === "avif" ? 1 : -1 })
       .rotate()
       .resize(size, size, { fit: "inside", withoutEnlargement: true })
-      .toFormat(format, { mozjpeg: true })
+      .toFormat(format, { mozjpeg: true, effort: 2 })
       .toFile(outputPath);
 
     return outputPath;

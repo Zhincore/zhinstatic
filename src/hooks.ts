@@ -5,7 +5,7 @@ import { getThumbnail } from "$server/thumbnails";
 import type { ThumbnailFormat } from "$server/thumbnails";
 import { config } from "$lib/config";
 
-const RANGE_RE = /^bytes=(?<start>\d+)-(?<end>\d+)/;
+const RANGE_RE = /^bytes=(?<start>\d+)?-(?<end>\d+)?/;
 
 export const handle: Handle = async ({ event, resolve }) => {
   const { headers } = event.request;
