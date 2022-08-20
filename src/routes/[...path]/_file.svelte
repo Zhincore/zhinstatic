@@ -35,8 +35,6 @@
 
   $: isDone = isLoaded || isError;
   $: src = path + "?file";
-  $: promiseCode =
-    (type === "code" || type === "text") && import("$lib/components/parts/Code.svelte").then((m) => m.default);
 </script>
 
 <svelte:window on:keydown={onkeydown} />
@@ -86,11 +84,9 @@
   {:else if node.mime === "text/html"}
     <iframe loading="async" {src} title={node.name} class="h-full w-full" on:load={() => (isLoaded = true)} />
   {:else if type === "code" || type === "text"}
-    {#if promiseCode}
-      {#await promiseCode then Code}
-        <Code {src} bind:isLoaded bind:isError />
-      {/await}
-    {/if}
+    {#await import("$lib/components/parts/Code.svelte") then { default: Code }}
+      <Code {src} bind:isLoaded bind:isError />
+    {/await}
   {:else}
     <object
       type={node.mime}

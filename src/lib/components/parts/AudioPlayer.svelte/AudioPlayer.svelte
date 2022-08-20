@@ -28,6 +28,7 @@
 
   let audio: HTMLAudioElement;
   let seeker: HTMLElement;
+  let played = false;
   let loop = false;
   let playing = false;
   let currentTime = 0;
@@ -85,9 +86,9 @@
     }
   };
 
+  $: if (playing && !played) played = true;
   $: if (audio) audio.loop = loop;
   // $: if (audio) audio.volume = Math.max(0, Math.min(1, $volume)); // Visualizer sets volume
-  $: if (autoplay && isLoaded && audio) audio.play().catch(console.warn);
   $: if (audio && !isLoaded && audio.readyState >= audio.HAVE_CURRENT_DATA) {
     // Loaded too fast
     isLoaded = true;
@@ -102,7 +103,7 @@
     <Icon data={{ none: faXmark, waveform: faWaveSquare, bars: faChartSimple }[value]} />
   </RadioSelect>
 
-  <Visualizer class="my-4 h-32 w-full text-accent-400" {audio} mode={$vismode} volume={$volume} />
+  <Visualizer class="my-4 h-32 w-full text-accent-400" {audio} mode={$vismode} volume={$volume} canStart={played} />
 
   <div class="flex min-w-[256px] items-center" role="region" aria-label="Audio Player">
     <button
@@ -130,7 +131,7 @@
       class="relative mx-2 h-2 flex-1 cursor-pointer overflow-hidden rounded-lg bg-zinc-300 dark:bg-zinc-700"
     >
       <div
-        class="absolute inset-y-0 h-full rounded-lg bg-zinc-500 transition-dimensions ease-linear"
+        class="absolute inset-y-0 h-full rounded-lg bg-zinc-400 transition-dimensions ease-linear dark:bg-zinc-600"
         style:left={`${range[0] * 100 - 1}%`}
         style:width={`${range[1] * 100}%`}
       />
@@ -153,6 +154,7 @@
 
     <audio
       {src}
+      {autoplay}
       id="audio1"
       on:canplay={() => (isLoaded = true)}
       on:error={() => (isError = true)}

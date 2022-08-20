@@ -6,6 +6,7 @@
   import { onMount } from "svelte";
   import { slide } from "svelte/transition";
 
+  export let canStart: boolean;
   export let volume = 1;
   export let audio: HTMLAudioElement | undefined = undefined;
   export let mode: VisualizerMode = "none";
@@ -84,7 +85,7 @@
 
   // $: if (ctx) ctx.imageSmoothingEnabled = false;
 
-  $: if (audio && !analyser) {
+  $: if (audio && canStart && !analyser) {
     const ctx = new AudioContext();
     const source = ctx.createMediaElementSource(audio);
     analyser = ctx.createAnalyser();
