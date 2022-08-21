@@ -78,11 +78,10 @@
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
 
-    if (mode == "bars") {
-      binCount = 2 ** Math.max(5, Math.min(14, Math.floor(Math.sqrt(canvas.width / 16))));
-    }
+    if (mode === "bars") binCount = 2 ** Math.max(5, Math.min(14, Math.floor(Math.sqrt(canvas.width / 16))));
   };
 
+  $: mode && resize();
   // $: if (ctx) ctx.imageSmoothingEnabled = false;
 
   $: if (audio && canStart && !analyser) {

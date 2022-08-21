@@ -4,7 +4,7 @@ import Path from "node:path";
 import { cpus } from "node:os";
 import Sharp from "sharp";
 import type { FormatEnum } from "sharp";
-import Limit from "p-limit";
+import Queue from "p-queue";
 import { error } from "@sveltejs/kit";
 import { getFile } from "$server/files";
 import type { FileInfo } from "$server/files";
@@ -13,7 +13,12 @@ import { ffmpegThumbnail } from "./filesSubprocess";
 
 export type ThumbnailFormat = typeof serverConfig.thumbnails.formats[number];
 
-const limit = Limit(Math.max(1, Math.floor(cpus().length * (2 / 3))));
+const threads = cpus().length;
+const queue = new Queue({
+  concurrency: threads,
+  interval: 500,
+  intervalCap: threads,
+});
 
 export async function getThumbnail(path: string, size: number, format: ThumbnailFormat, info?: FileInfo) {
   if (!serverConfig.thumbnails.formats.includes(format)) throw error(400, "Unsupported output format");
@@ -36,32 +41,34 @@ export async function getThumbnail(path: string, size: number, format: Thumbnail
 
   await fs.mkdir(outputDir, { recursive: true });
 
-  return limit(async () => {
-    let inputPath = path;
+  let inputPath = path;
 
-    if (!sharpInSupport || !sharpOutSupport) {
-      // Convert unsupported files first
-      inputPath = Path.join(serverConfig.thumbnails.path, encodeFilename(path) + ".png");
-      try {
-        await ffmpegThumbnail(path, inputPath, Math.max(...serverConfig.thumbnails.widths));
-      } catch (error) {
-        if ((error as Record<string, string>)?.code === "ENOENT") return path; // FFmpeg not found
-        throw error;
-      }
+  if (!sharpInSupport || !sharpOutSupport) {
+    // Convert unsupported files first
+    inputPath = Path.join(serverConfig.thumbnails.path, encodeFilename(path) + ".png");
+    try {
+      await queue.add(() => ffmpegThumbnail(path, inputPath, Math.max(...serverConfig.thumbnails.widths)));
+    } catch (error) {
+      if ((error as Record<string, string>)?.code === "ENOENT") return path; // FFmpeg not found
+      throw error;
     }
+  }
 
-    await Sharp(inputPath, { animated, pages: format === "avif" ? 1 : -1 })
-      .rotate()
-      .resize(size, size, { fit: "inside", withoutEnlargement: true })
-      .toFormat(format, { mozjpeg: true, effort: 2 })
-      .toFile(outputPath);
-
-    return outputPath;
-  }).catch((err) => {
+  try {
+    await queue.add(() =>
+      Sharp(inputPath, { animated, pages: format === "avif" ? 1 : -1 })
+        .rotate()
+        .resize(size, size, { fit: "inside", withoutEnlargement: true })
+        .toFormat(format, { mozjpeg: true, effort: 2 })
+        .toFile(outputPath),
+    );
+  } catch (err) {
     // TODO: Error handling?
     if (process.env.NODE_ENV != "production") console.error(err);
     return path;
-  });
+  }
+
+  return outputPath;
 }
 
 function encodeFilename(path: string) {
