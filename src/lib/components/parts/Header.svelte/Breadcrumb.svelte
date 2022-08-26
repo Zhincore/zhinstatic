@@ -7,7 +7,7 @@
 
   const setHoveredEv = (i: number) => () => (hovered = i);
 
-  $: pathSegments = ($page.params.path ?? "").replace(/\/$/, "").split("/");
+  $: pathSegments = $page.params.path.replace(/\/$/, "").split("/");
 </script>
 
 <div

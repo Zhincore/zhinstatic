@@ -10,6 +10,7 @@ export interface FileSourceOpts {
 export class FileSource implements UnderlyingByteSource {
   type = "bytes" as const;
   autoAllocateChunkSize = 1024;
+  closed = false;
 
   private file?: FileHandle;
   private controller?: ReadableByteStreamController;
@@ -50,6 +51,7 @@ export class FileSource implements UnderlyingByteSource {
   }
 
   async cancel() {
+    this.closed = true;
     await this.file?.close();
   }
 }

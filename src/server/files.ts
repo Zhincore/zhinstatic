@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { ReadableStream } from "node:stream/web";
+import { ReadableStream, WritableStream } from "node:stream/web";
 import type { Stats } from "node:fs";
 import Path from "node:path";
 import { fileTypeFromFile } from "file-type";
@@ -88,7 +88,7 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
   };
 }
 
-export async function streamFileResponse(path: string, info?: FileInfo, start = 0, end?: number, abort?: AbortSignal) {
+export async function streamFileResponse(path: string, info?: FileInfo, start = 0, end?: number) {
   if (!info) {
     const stat = await fs.promises.stat(path);
     if (!stat.isFile()) throw error(400, "Cannot stream a folder");
@@ -110,13 +110,10 @@ export async function streamFileResponse(path: string, info?: FileInfo, start = 
     headers.append("Content-Range", `bytes ${start}-${end}/${info.size}`);
   }
 
-  const fileSource = new FileSource(path, { start, length });
-  if (abort)
-    abort.addEventListener("abort", (r) => {
-      fileSource.cancel();
-      console.log("Abort:", r);
-    });
-  return new Response(new ReadableStream(fileSource), {
+  const [stream, fallback] = new ReadableStream(new FileSource(path, { start, length })).tee();
+  // Piping the clone of the stream nowhere to prevent the stream from getting garbage collected without closing the underlying file
+  fallback.pipeTo(new WritableStream());
+  return new Response(stream, {
     status: partial ? 206 : 200,
     headers,
   });

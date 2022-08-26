@@ -55,7 +55,7 @@ async function _getThumbnail(
   const sharpOutSupport = Sharp.format[mapFormat(format) as keyof FormatEnum]?.output.file;
   const animated = serverConfig.thumbnails.animatedMimes.includes(info.mime);
 
-  checkAbort(abort);
+  abort?.throwIfAborted();
 
   await fs.mkdir(outputDir, { recursive: true });
 
@@ -75,7 +75,7 @@ async function _getThumbnail(
     }
   }
 
-  checkAbort(abort);
+  abort?.throwIfAborted();
 
   try {
     // NOTE: Sharp has it's own queue
@@ -95,8 +95,4 @@ async function _getThumbnail(
 
 function encodeFilename(path: string) {
   return path.replace(/\/|%/g, "-").replace(/-{2,}/g, "-").replace(/^-/, "");
-}
-
-function checkAbort(abort?: AbortSignal) {
-  if (abort?.aborted) throw error(444, "Aborted");
 }

@@ -42,7 +42,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         end = parseInt(match?.groups?.end ?? "") || undefined;
       }
 
-      const response = await streamFileResponse(path, undefined, start, end, abort);
+      const response = await streamFileResponse(path, undefined, start, end);
       if (response) return response;
     }
   }
