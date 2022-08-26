@@ -103,7 +103,7 @@
       <a
         href={`${dirpath}/${neighbour}`}
         title={i ? "Next file" : "Previous file"}
-        class="absolute bottom-0 p-4 opacity-50 transition hover:opacity-90"
+        class="absolute top-0 p-4 opacity-50 transition hover:opacity-90"
         class:left-0={!i}
         class:right-0={i}
         bind:this={neighbourButtons[i]}

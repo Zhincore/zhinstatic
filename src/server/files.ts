@@ -88,7 +88,7 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
   };
 }
 
-export async function streamFileResponse(path: string, info?: FileInfo, start = 0, end?: number) {
+export async function streamFileResponse(path: string, info?: FileInfo, start = 0, end?: number, abort?: AbortSignal) {
   if (!info) {
     const stat = await fs.promises.stat(path);
     if (!stat.isFile()) throw error(400, "Cannot stream a folder");
@@ -111,11 +111,12 @@ export async function streamFileResponse(path: string, info?: FileInfo, start = 
   }
 
   const fileSource = new FileSource(path, { start, length });
-  const [webstream, fallback] = new ReadableStream(fileSource).tee();
-  // Piping the clone of the stream nowhere to prevent the stream from getting garbage collected without closing the underlying file
-  // I used Timeout before but it closed video streams even when resetted on each pull :/
-  fallback.pipeTo(new WritableStream({ write: () => void 0 }));
-  return new Response(webstream, {
+  if (abort)
+    abort.addEventListener("abort", (r) => {
+      fileSource.cancel();
+      console.log("Abort:", r);
+    });
+  return new Response(new ReadableStream(fileSource), {
     status: partial ? 206 : 200,
     headers,
   });
