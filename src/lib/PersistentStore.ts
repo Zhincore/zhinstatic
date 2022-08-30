@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import Debounce from "debounce";
-import { browser } from "$app/env";
+import { browser } from "$app/environment";
 
 export function PersistentStore<T>(key: string, defValue?: T) {
   const stored = browser && localStorage.getItem(key);

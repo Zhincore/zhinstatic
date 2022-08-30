@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { page } from "$app/stores";
-import { browser } from "$app/env";
+import { browser } from "$app/environment";
 import { togglable } from "$lib/togglable";
 import type { Togglable } from "$lib/togglable";
 import { config } from "$lib/config";

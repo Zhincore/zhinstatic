@@ -3,7 +3,7 @@
   import { fade } from "svelte/transition";
   import type { TransitionConfig } from "svelte/transition";
   import type Fuse from "fuse.js";
-  import { browser } from "$app/env";
+  import { browser } from "$app/environment";
   import { navigating } from "$app/stores";
   import type { FolderInfo, NodeInfo } from "$server/files";
   import { normalizePath } from "$lib/utils";

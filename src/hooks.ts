@@ -1,6 +1,6 @@
 import { parse } from "cookie";
 import { error, type Handle } from "@sveltejs/kit";
-import { prerendering } from "$app/env";
+import { prerendering } from "$app/environment";
 import { getPath, streamFileResponse } from "$server/files";
 import { getThumbnail } from "$server/thumbnails";
 import type { ThumbnailFormat } from "$server/thumbnails";
@@ -12,14 +12,14 @@ export const handle: Handle = async ({ event, resolve }) => {
   if (!prerendering) {
     const { headers } = event.request;
     const accept = headers.get("Accept") ?? "*/*";
-    const dest = event.request.destination || "empty";
+    const dest = event.request.destination || headers.get("sec-fetch-dest") || "empty";
     const searchParams = event.url.searchParams || new URLSearchParams();
 
     if (
       "path" in event.params &&
       (searchParams.has("file") ||
-        (!["empty", "document"].includes(dest) &&
-          (!accept.startsWith("text/html") || dest === "iframe") &&
+        (!["document", "script"].includes(dest) &&
+          (dest === "iframe" || !accept.startsWith("text/html")) &&
           !accept.startsWith("application/json")))
     ) {
       /// File streaming

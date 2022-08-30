@@ -6,7 +6,7 @@
 </script>
 
 <script lang="ts">
-  import { browser } from "$app/env";
+  import { browser } from "$app/environment";
   import type { FileInfo } from "$server/files";
 
   export let src: string;
