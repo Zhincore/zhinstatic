@@ -16,7 +16,8 @@ export const handle: Handle = async ({ event, resolve }) => {
     const searchParams = event.url.searchParams || new URLSearchParams();
 
     if (
-      "path" in event.params &&
+      event.params.path &&
+      !event.params.path.match(/__data\.js(on)?$/) &&
       (searchParams.has("file") ||
         (!["document", "script"].includes(dest) &&
           (dest === "iframe" || !accept.startsWith("text/html")) &&
