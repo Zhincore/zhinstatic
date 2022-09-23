@@ -91,7 +91,7 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
 export async function streamFileResponse(path: string, info?: FileInfo, start = 0, end?: number) {
   if (!info) {
     const stat = await fs.promises.stat(path);
-    if (!stat.isFile()) throw error(400, "Cannot stream a folder");
+    if (!stat.isFile()) return;
 
     info = await getFile(path, stat);
   }

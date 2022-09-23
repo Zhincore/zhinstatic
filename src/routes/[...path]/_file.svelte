@@ -15,7 +15,7 @@
   export let node: FileInfo;
   export let path: string;
   const type = getTypeFromMime(node.mime);
-  const loadable = ["image", "video", "audio", "code"].includes(type as string);
+  const loadable = ["image", "video", "audio", "code"].includes(type as string) && node.mime !== "text/html";
   const dirpath = path.split("/").slice(0, -1).join("/");
 
   const neighbourButtons: [HTMLElement | undefined, HTMLElement | undefined] = [undefined, undefined];
@@ -82,7 +82,7 @@
       <AudioPlayer {src} autoplay class="min-w-full md:min-w-1/2" bind:isLoaded bind:isError />
     {/await}
   {:else if node.mime === "text/html"}
-    <iframe loading="async" {src} title={node.name} class="h-full w-full" on:load={() => (isLoaded = true)} />
+    <iframe loading="async" {src} title={node.name} class="h-full w-full" />
   {:else if type === "code" || type === "text"}
     {#await import("$lib/components/parts/Code.svelte") then { default: Code }}
       <Code {src} bind:isLoaded bind:isError />

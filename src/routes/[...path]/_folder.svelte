@@ -54,7 +54,7 @@
   $: windowing.list = sortedList;
   $: windowing.windowEl = windowEl;
   $: windowing.item = itemEl;
-  $: if ($navigating?.from.pathname === path && windowEl) scrollRestore.setPathScroll(path, windowEl.scrollTop);
+  $: if ($navigating?.from?.url.pathname === path && windowEl) scrollRestore.setPathScroll(path, windowEl.scrollTop);
 
   $: itemClass = "link group flex h-40 flex-col items-center break-all";
 

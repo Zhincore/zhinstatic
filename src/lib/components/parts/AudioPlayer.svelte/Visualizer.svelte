@@ -16,7 +16,7 @@
   const MIN_BAR_H = 0.04;
   const BAR_GAP = 0.002;
 
-  $: binCount = mode === "waveform" ? 4096 : 128;
+  $: binCount = mode === "waveform" ? 2048 : 128;
   $: data = new Uint8Array(binCount);
 
   let analyser: AnalyserNode;
