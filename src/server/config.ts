@@ -1,6 +1,15 @@
 import { config } from "$lib/config";
 
-export const serverConfig = {
+type Config = typeof config;
+export interface ServerConfig extends Config {
+  checkMagicFor: string[];
+  mimeOverride: Record<string, string>;
+  thumbnails: Config["thumbnails"] & {
+    path: string;
+  };
+}
+
+export const serverConfig: ServerConfig = {
   ...config,
 
   checkMagicFor: ["application/octet-stream"],

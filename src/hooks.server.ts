@@ -1,11 +1,10 @@
 import { parse } from "cookie";
 import { error, type Handle, type RequestEvent } from "@sveltejs/kit";
 import { prerendering } from "$app/environment";
-import { getFile, getNodeInfo, getPath, streamFileResponse } from "$server/files";
+import { getPath, streamFileResponse } from "$server/files";
 import { getThumbnail } from "$server/thumbnails";
 import type { ThumbnailFormat } from "$server/thumbnails";
 import { config } from "$lib/config";
-import { getNode } from "./routes/[...path]/_node.server";
 
 const RANGE_RE = /^bytes=(?<start>\d+)?-(?<end>\d+)?/;
 
