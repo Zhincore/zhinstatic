@@ -19,7 +19,7 @@
     {#if "files" in node}
       <FolderViewer {node} {path} />
     {:else}
-      <FileViewer {node} {path} />
+      <FileViewer {node} {path} neighbours={data.neighbours} />
     {/if}
   </div>
 {/key}

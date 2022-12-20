@@ -1,6 +1,6 @@
 import { parse } from "cookie";
 import { error, type Handle, type RequestEvent } from "@sveltejs/kit";
-import { prerendering } from "$app/environment";
+import { building } from "$app/environment";
 import { getPath, streamFileResponse } from "$server/files";
 import { getThumbnail } from "$server/thumbnails";
 import type { ThumbnailFormat } from "$server/thumbnails";
@@ -9,7 +9,7 @@ import { config } from "$lib/config";
 const RANGE_RE = /^bytes=(?<start>\d+)?-(?<end>\d+)?/;
 
 export const handle: Handle = async ({ event, resolve }) => {
-  if (!prerendering) {
+  if (!building && !event.isDataRequest) {
     const { headers } = event.request;
     const accept = headers.get("Accept") ?? "*/*";
     const dest = event.request.destination || headers.get("sec-fetch-dest") || "empty";
@@ -17,11 +17,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     if (
       event.params.path &&
-      !event.params.path.match(/__data\.js(on)?$/) &&
       (searchParams.has("file") ||
-        (!["document"].includes(dest) &&
-          (dest === "iframe" || !accept.startsWith("text/html")) &&
-          !accept.startsWith("application/json")))
+        ((dest === "iframe" || !accept.startsWith("text/html")) && !accept.startsWith("application/json")))
     ) {
       const stream = await streamFile(event);
       if (stream) return stream;

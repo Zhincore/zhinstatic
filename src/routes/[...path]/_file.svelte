@@ -1,11 +1,9 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { fade } from "svelte/transition";
   import { faCircleDown } from "@fortawesome/free-solid-svg-icons/faCircleDown";
   import { faAngleLeft } from "@fortawesome/free-solid-svg-icons/faAngleLeft";
   import { faAngleRight } from "@fortawesome/free-solid-svg-icons/faAngleRight";
   import { Icon } from "svelte-awesome";
-  import { getNeighbourFiles } from "$lib/neighbourFiles";
   import { getTypeFromMime } from "$lib/filetype";
   import type { FileInfo } from "$server/files";
   import Loader from "$elements/Loader.svelte";
@@ -14,19 +12,13 @@
 
   export let node: FileInfo;
   export let path: string;
+  export let neighbours: [string | undefined, string | undefined] = [undefined, undefined];
   const type = getTypeFromMime(node.mime);
   const loadable = ["image", "video", "audio", "code"].includes(type as string) && node.mime !== "text/html";
-  const dirpath = path.split("/").slice(0, -1).join("/");
 
   const neighbourButtons: [HTMLElement | undefined, HTMLElement | undefined] = [undefined, undefined];
-  let neighbours: [string | undefined, string | undefined] = [undefined, undefined];
   let isLoaded = !loadable;
   let isError = false;
-
-  onMount(async () => {
-    const _neighbours = await getNeighbourFiles(path);
-    if (_neighbours) neighbours = _neighbours;
-  });
 
   const onkeydown = (ev: KeyboardEvent) => {
     if (ev.key === "ArrowLeft") neighbourButtons[0]?.click();
@@ -101,7 +93,9 @@
   {#each neighbours as neighbour, i}
     {#if neighbour}
       <a
-        href={`${dirpath}/${neighbour}`}
+        href={`${neighbour}`}
+        data-sveltekit-reload="off"
+        data-sveltekit-preload-data="hover"
         title={i ? "Next file" : "Previous file"}
         class="absolute top-0 p-4 opacity-50 transition hover:opacity-90"
         class:left-0={!i}
