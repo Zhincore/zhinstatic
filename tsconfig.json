@@ -2,12 +2,24 @@
   "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "$lib": ["src/lib"],
-      "$lib/*": ["src/lib/*"],
-      "$stores/*": ["src/lib/stores/*"],
-      "$parts/*": ["src/lib/components/parts/*"],
-      "$elements/*": ["src/lib/components/elements/*"],
-      "$server/*": ["src/server/*"]
+      "$lib": [
+        "./src/lib"
+      ],
+      "$lib/*": [
+        "./src/lib/*"
+      ],
+      "$stores/*": [
+        "./src/lib/stores/*"
+      ],
+      "$parts/*": [
+        "./src/lib/components/parts/*"
+      ],
+      "$elements/*": [
+        "./src/lib/components/elements/*"
+      ],
+      "$server/*": [
+        "./src/server/*"
+      ]
     },
     "allowJs": true,
     "checkJs": true,
@@ -17,6 +29,8 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "types": ["@celeranis/node-current-types"]
+    "types": [
+      "bun-types"
+    ]
   }
 }

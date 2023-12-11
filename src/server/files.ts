@@ -1,5 +1,4 @@
 import fs from "node:fs";
-import { ReadableStream, WritableStream } from "node:stream/web";
 import type { Stats } from "node:fs";
 import Path from "node:path";
 import { fileTypeFromFile } from "file-type";
@@ -8,7 +7,6 @@ import { error } from "@sveltejs/kit";
 import type { File as FileRecord, PrismaPromise } from "@prisma/client";
 import { prisma } from "$server/prisma";
 import { serverConfig } from "./config";
-import { FileSource } from "./FileSource";
 
 const ROOT_PATH = Path.resolve(process.env.ZSTATIC_PATH || import.meta.env.ZSTATIC_PATH);
 const FILTER = (filename: string) => !filename.startsWith(".");
@@ -73,8 +71,12 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
     let magic: { ext: string | null; mime: string | null } | null = await prisma.file.findUnique({ where: { path } });
 
     if (!magic) {
-      magic = (await fileTypeFromFile(path)) ?? null;
-      if (magic) deferedCache.push({ path, ...magic });
+      try {
+        magic = (await fileTypeFromFile(path)) ?? null;
+        if (magic) deferedCache.push({ path, ...magic });
+      } catch(err) {
+        console.error(err);
+      }
     }
     if (magic) Object.assign(type, magic);
   }
@@ -110,10 +112,7 @@ export async function streamFileResponse(path: string, info?: FileInfo, start = 
     headers.append("Content-Range", `bytes ${start}-${end}/${info.size}`);
   }
 
-  const [stream, fallback] = new ReadableStream(new FileSource(path, { start, length })).tee();
-  // Piping the clone of the stream nowhere to prevent the stream from getting garbage collected without closing the underlying file
-  fallback.pipeTo(new WritableStream());
-  return new Response(stream, {
+  return new Response(Bun.file(path).slice(start, end + 1), {
     status: partial ? 206 : 200,
     headers,
   });
