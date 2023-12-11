@@ -2,14 +2,14 @@
 # see all versions at https://hub.docker.com/r/oven/bun/tags
 FROM oven/bun:1 AS base
 WORKDIR /usr/src/app
-RUN apt update && apt install -y ffmpeg && apt clean
+RUN apt update && apt install -y ffmpeg libjemalloc2 && apt clean
 
 # install dependencies into temp directory
 # this will cache them and speed up future builds
 FROM base AS install
-RUN mkdir -p /temp/dev
-COPY package.json bun.lockb /temp/dev/
-RUN cd /temp/dev && bun install --frozen-lockfile
+WORKDIR /tmp/dev
+COPY package.json bun.lockb ./
+RUN bun install --frozen-lockfile
 
 # copy node_modules from temp directory
 # then copy all (non-ignored) project files into the image
@@ -19,7 +19,7 @@ ARG ZSTATIC_PATH="/var/www/"
 ENV ZSTATIC_PATH=$ZSTATIC_PATH
 
 WORKDIR /usr/src/app
-COPY --from=install /temp/dev/node_modules node_modules
+COPY --from=install /tmp/dev/node_modules node_modules
 COPY . .
 
 # Build project
@@ -38,7 +38,8 @@ COPY --from=prerelease /usr/src/app/prisma ./prisma
 
 ENV PROTOCOL_HEADER="x-forwarded-proto"
 ENV HOST_HEADER="x-forwarded-host"
+ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libjemalloc.so.2"
 
 # run the app
 EXPOSE 3000/tcp
-CMD [ "bun", "run", "./build/index.js" ]
+ENTRYPOINT [ "bun", "run", "./build/index.js" ]
