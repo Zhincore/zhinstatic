@@ -37,6 +37,7 @@ async function _getThumbnail(
   info?: FileInfo,
   abort?: AbortSignal,
 ) {
+  return path;
   if (!serverConfig.thumbnails.formats.includes(format)) throw error(400, "Unsupported output format");
   if (!serverConfig.thumbnails.widths.includes(size)) throw error(400, "Unsupported output width");
 
