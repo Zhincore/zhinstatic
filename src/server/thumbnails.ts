@@ -14,7 +14,7 @@ import { ffmpegThumbnail } from "./filesSubprocess";
 export type ThumbnailFormat = typeof serverConfig.thumbnails.formats[number];
 
 // Use max one third of available threads for FFmpeg, min 1
-const fflimit = Limit(Math.max(1, Math.floor(cpus().length / 3)));
+const fflimit = Limit(1);
 
 const queue = new Map<string, Promise<string | undefined>>();
 
@@ -30,6 +30,9 @@ export async function getThumbnail(...args: Parameters<typeof _getThumbnail>): R
   return promise;
 }
 
+Sharp.concurrency(1);
+Sharp.cache(false);
+
 async function _getThumbnail(
   path: string,
   size: number,
@@ -37,7 +40,6 @@ async function _getThumbnail(
   info?: FileInfo,
   abort?: AbortSignal,
 ) {
-  return path;
   if (!serverConfig.thumbnails.formats.includes(format)) throw error(400, "Unsupported output format");
   if (!serverConfig.thumbnails.widths.includes(size)) throw error(400, "Unsupported output width");
 
