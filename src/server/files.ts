@@ -2,7 +2,6 @@ import fs from "node:fs";
 import type { Stats } from "node:fs";
 import Path from "node:path";
 import { fileTypeFromFile } from "file-type";
-import { lookup as mimeLookup } from "mime-types";
 import { error } from "@sveltejs/kit";
 import {database, type FileRecord} from "./database";
 import { serverConfig } from "./config";
@@ -63,7 +62,7 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
 
   const ext = Path.extname(path);
   const override: string | undefined = serverConfig.mimeOverride[ext];
-  const type: { ext: string | null; mime: string | null } = { ext, mime: (override ?? mimeLookup(ext)) || null };
+  const type: { ext: string | null; mime: string | null } = { ext, mime: (override ?? Bun.file(path).type) || null };
 
   if (stat.size > 0 && (!type.mime || serverConfig.checkMagicFor.includes(type.mime) || serverConfig.checkMagicFor.includes(ext))) {
     const fileRecord: FileRecord | null = await database.file.get(path);
