@@ -11,7 +11,7 @@
   import { onClickOutside } from "$lib/onClickOutside";
 
   $: nodeInfo = $page.data.node as FileInfo;
-  $: src = $page.data.path + "?file";
+  $: src = "/_files"+$page.data.path;
 
   let arrowEl: Element;
 

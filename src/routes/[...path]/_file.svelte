@@ -26,7 +26,7 @@
   };
 
   $: isDone = isLoaded || isError;
-  $: src = path + "?file";
+  $: src = "/_files"+path;
 </script>
 
 <svelte:window on:keydown={onkeydown} />

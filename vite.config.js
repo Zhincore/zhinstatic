@@ -10,7 +10,6 @@ export default defineConfig({
   optimizeDeps: {
     include: ["highlight.js", "highlight.js/lib/core"],
   },
-  build: {minify:false},
   resolve: {
     alias: {
       $stores: resolve("./src/lib/stores"),

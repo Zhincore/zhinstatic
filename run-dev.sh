@@ -6,8 +6,7 @@
 
 bun run vite --port 8080 & (  # start dev server
   VITE_PID=$!  # save it's PID
-  sleep 2  # give it two seconds to boot up
-  curl http://localhost:8080/ #  ping the dev server to make it do something
+  curl --retry 60 --retry-max-time 60 --retry-all-errors -o /dev/null http://localhost:8080/ #  ping the dev server to make it do something
   sleep 2  # wait another two seconds
   kill $VITE_PID  # end dev server
 )
