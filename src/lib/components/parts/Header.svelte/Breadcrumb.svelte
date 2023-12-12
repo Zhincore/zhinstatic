@@ -25,7 +25,7 @@
       aria-hidden="true"
       on:mouseover={setHoveredEv(i)}
       on:focus={setHoveredEv(i)}
-      transition:fade>/{segment}</a
+      transition:fade|global>/{segment}</a
     >
   {/each}
 </div>

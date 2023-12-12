@@ -25,7 +25,7 @@
 
   {#if type === "image" || type === "video"}
     {#if type === "video" && thumbnailLoaded}
-      <div transition:fade class="absolute-centered z-10 opacity-80 drop-shadow transition">
+      <div transition:fade|global class="absolute-centered z-10 opacity-80 drop-shadow transition">
         <Icon data={faPlay} scale={3} />
       </div>
     {/if}

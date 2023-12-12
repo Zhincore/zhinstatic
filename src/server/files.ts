@@ -4,8 +4,7 @@ import Path from "node:path";
 import { fileTypeFromFile } from "file-type";
 import { lookup as mimeLookup } from "mime-types";
 import { error } from "@sveltejs/kit";
-import type { File as FileRecord, PrismaPromise } from "@prisma/client";
-import { prisma } from "$server/prisma";
+import {database, type FileRecord} from "./database";
 import { serverConfig } from "./config";
 
 const ROOT_PATH = Path.resolve(process.env.ZSTATIC_PATH || import.meta.env.ZSTATIC_PATH);
@@ -23,7 +22,6 @@ export type FolderInfo = BaseNodeInfo & {
 };
 export type NodeInfo = FileInfo | FolderInfo;
 
-const cacheLock = new Set<string>();
 const deferedCache: FileRecord[] = [];
 
 export function getPath(paramPath: string) {
@@ -52,11 +50,11 @@ export async function getNodeInfo(path: string): Promise<NodeInfo | undefined> {
       }
     }
 
-    await saveDeferedCache();
+    saveDeferedCache();
     return { name: Path.basename(path), files: await Promise.all(files) };
   }
 
-  await saveDeferedCache();
+  saveDeferedCache();
   return await getFile(path, stat);
 }
 
@@ -67,18 +65,18 @@ export async function getFile(path: string, aStat?: Stats): Promise<FileInfo> {
   const override: string | undefined = serverConfig.mimeOverride[ext];
   const type: { ext: string | null; mime: string | null } = { ext, mime: (override ?? mimeLookup(ext)) || null };
 
-  if (!type.mime || serverConfig.checkMagicFor.includes(type.mime) || serverConfig.checkMagicFor.includes(ext)) {
-    let magic: { ext: string | null; mime: string | null } | null = await prisma.file.findUnique({ where: { path } });
+  if (stat.size > 0 && (!type.mime || serverConfig.checkMagicFor.includes(type.mime) || serverConfig.checkMagicFor.includes(ext))) {
+    const fileRecord: FileRecord | null = await database.file.get(path);
 
-    if (!magic) {
+    if (!fileRecord) {
       try {
-        magic = (await fileTypeFromFile(path)) ?? null;
-        if (magic) deferedCache.push({ path, ...magic });
+        const magic = (await fileTypeFromFile(path)) ?? null;
+        if (magic) deferedCache.push({ ...magic, path });
       } catch(err) {
         console.error(err);
       }
     }
-    if (magic) Object.assign(type, magic);
+    if (fileRecord) Object.assign(type, fileRecord);
   }
 
   return {
@@ -118,15 +116,9 @@ export async function streamFileResponse(path: string, info?: FileInfo, start = 
   });
 }
 
-async function saveDeferedCache() {
+function saveDeferedCache() {
   if (!deferedCache.length) return;
 
-  const transaction: PrismaPromise<unknown>[] = [];
-  for (const data of deferedCache) {
-    if (cacheLock.has(data.path)) continue;
-    cacheLock.add(data.path);
-    transaction.push(prisma.file.create({ data }));
-  }
+  database.insertFiles(deferedCache);
   deferedCache.length = 0;
-  await prisma.$transaction(transaction);
 }

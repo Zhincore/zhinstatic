@@ -1,14 +1,16 @@
 import { resolve } from "node:path";
+import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 
 /** @type {import('vite').UserConfig} */
-const config = {
+export default defineConfig({
   envPrefix: "ZSTATIC_",
   plugins: [sveltekit()],
   clearScreen: false,
   optimizeDeps: {
     include: ["highlight.js", "highlight.js/lib/core"],
   },
+  build: {minify:false},
   resolve: {
     alias: {
       $stores: resolve("./src/lib/stores"),
@@ -17,6 +19,4 @@ const config = {
       $server: resolve("./src/server"),
     },
   },
-};
-
-export default config;
+});

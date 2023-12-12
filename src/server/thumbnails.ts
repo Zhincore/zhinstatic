@@ -1,7 +1,6 @@
 import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import Path from "node:path";
-import { cpus } from "node:os";
 import Sharp from "sharp";
 import type { FormatEnum } from "sharp";
 import Limit from "p-limit";
@@ -50,7 +49,11 @@ async function _getThumbnail(
   if (!info) info = await getFile(path);
   const [type, inFormat] = info.mime?.split("/") ?? [];
   if (!info.mime || !["video", "image"].includes(type)) throw error(400, "Unsupported source format");
-  if (serverConfig.thumbnails.keepMimes.includes(info.mime)) return path;
+  if (info.size <= serverConfig.thumbnails.minSize || serverConfig.thumbnails.keepMimes.includes(info.mime)) { 
+    return path; // keep file as is
+  }
+  if (info.size >= serverConfig.thumbnails.maxSize) throw error(404, "File too big");
+
 
   // AVIF is regarded as HEIF in sharp
   const mapFormat = (fmt: string) => ({ avif: "heif" }[fmt] ?? fmt);
@@ -82,7 +85,11 @@ async function _getThumbnail(
 
   try {
     // NOTE: Sharp has it's own queue
-    await Sharp(inputPath, { animated, pages: format === "avif" ? 1 : -1 })
+    await Sharp(inputPath, {
+        limitInputPixels:serverConfig.thumbnails.maxPixels, 
+        animated,
+        pages: format === "avif" ? 1 : -1 
+      })
       .rotate()
       .resize(size, size, { fit: "inside", withoutEnlargement: true })
       .toFormat(format, { mozjpeg: true, effort: 2 })

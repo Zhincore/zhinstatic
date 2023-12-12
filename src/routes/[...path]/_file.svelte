@@ -31,9 +31,9 @@
 
 <svelte:window on:keydown={onkeydown} />
 
-<div class="flex h-full items-center justify-center" transition:fade={{ duration: 200 }}>
+<div class="flex h-full items-center justify-center" transition:fade|global={{ duration: 200 }}>
   {#if !isDone}
-    <div class="absolute-centered z-10 transition-opacity" transition:fade><Loader /></div>
+    <div class="absolute-centered z-10 transition-opacity" transition:fade|global><Loader /></div>
   {/if}
 
   {#if isError || ["archive", "data", undefined].includes(type)}

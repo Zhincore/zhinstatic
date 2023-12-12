@@ -109,7 +109,7 @@
     style="image-rendering: crisp-edges;"
     bind:this={canvas}
     class={className}
-    transition:slide
+    transition:slide|global
     on:introstart={() => (ready = false)}
     on:introend={() => (ready = true)}
     on:outrostart={() => (ready = false)}

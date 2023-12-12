@@ -80,7 +80,7 @@
           class:absolute={$windowing.ready}
           style={$windowing.ready ? `top: ${pos.offsetTop}px; left: ${pos.offsetLeft}px; width: ${pos.width}px` : ""}
         >
-          <a href={url} class={itemClass} transition:navFade={i} title={file.name}>
+          <a href={url} class={itemClass} transition:navFade|global={i} title={file.name}>
             <FileIcon node={file} {url} {sizes} class="" />
             <div class="mt-2 max-h-12 max-w-full overflow-hidden text-ellipsis text-center">{file.name}</div>
           </a>

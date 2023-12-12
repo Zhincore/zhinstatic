@@ -25,7 +25,7 @@
 {/key}
 
 {#if $navigating}
-  <div class="absolute inset-0 z-10 flex items-center justify-center overflow-hidden" in:fade={{ delay: 250 }} out:fade>
+  <div class="absolute inset-0 z-10 flex items-center justify-center overflow-hidden" in:fade|global={{ delay: 250 }} out:fade|global>
     <div class="bg-radialShadow p-24"><Loader /></div>
   </div>
 {/if}

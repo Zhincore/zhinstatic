@@ -23,11 +23,11 @@
   let infoShown = false;
 </script>
 
-<a transition:fade class="link mx-2 p-2" href={src} download={nodeInfo.name} title="Download file">
+<a transition:fade|global class="link mx-2 p-2" href={src} download={nodeInfo.name} title="Download file">
   <Icon data={faDownload} scale={1.5} />
 </a>
 
-<div transition:fade use:onClickOutside={() => (infoShown = false)} class="relative">
+<div transition:fade|global use:onClickOutside={() => (infoShown = false)} class="relative">
   <button
     use:popperRef
     class="link mx-2 p-2"
@@ -44,12 +44,12 @@
     >
       <div
         bind:this={arrowEl}
-        transition:slide
+        transition:slide|global
         class="absolute bottom-full border-x-8 border-b-8 border-x-transparent border-b-zinc-200 dark:border-b-zinc-700"
       />
 
       <dl
-        transition:slide
+        transition:slide|global
         class="grid grid-cols-[max-content_auto] gap-1 gap-x-4 break-all rounded-xl bg-zinc-200 p-4 shadow-xl transition-colors dark:bg-zinc-700"
       >
         <dt class="font-medium">File name</dt>
